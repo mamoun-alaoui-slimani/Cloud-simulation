@@ -1,0 +1,22 @@
+#pragma once
+#include "Ciel.h"
+#include "ChampPotentiels.h"
+#include "ChaineDeMontagnes.h"
+#include "Dessinable.h"
+
+class Systeme : Dessinable{
+private:
+    ChampPotentiels champ;
+    Ciel ciel;
+    ChaineDeMontagnes chaines; //Collection de montagnes
+
+public:
+    Systeme(ChampPotentiels const& cp, ChaineDeMontagnes& chaine);
+    Systeme(Systeme& systeme2);
+    std::ostream& affiche(std::ostream& sortie) const;
+    void evolue(SupportADessin& support);
+    virtual void dessine_sur(SupportADessin& support) override;
+    void demarre(SupportADessin& support, double seuil = 1e-4, int IteMax = 5000, bool affiche = false);
+};
+
+std::ostream& operator<<(std::ostream& sortie, Systeme const& systeme);

@@ -53,3 +53,20 @@ Requires Qt 5 or 6 and a C++17 compiler.
     make
 
 This produces two executables: `text/ex_05_text` and `Qt_GL/ex_05_gl`.
+
+## Running
+
+Text version (no Qt required, just a C++17 compiler):
+
+```sh
+g++ -std=c++17 -I general general/*.cc text/*.cc -o cloudsim_text
+./cloudsim_text
+```
+
+Output — one row per grid cell (`i j k`, potential, enthalpy, temperature,
+pressure, vapour pressure, saturation pressure, cloud flag):
+
+```
+1 1 1 405.193 285872 284.491 101313 1286.37 1312.5 0
+1 1 2 411.832 285862 284.481 101301 1286.21 1311.65 0
+```

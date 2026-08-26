@@ -12,7 +12,10 @@ private:
 
 public:
     Systeme(ChampPotentiels const& cp, ChaineDeMontagnes& chaine);
-    Systeme(Systeme& systeme2);
+    /* Pas de copie : ChaineDeMontagnes detient un vector<unique_ptr<Montagne>>,
+       qui n'est pas copiable sans un clone() virtuel sur Montagne. */
+    Systeme(Systeme const&) = delete;
+    Systeme& operator=(Systeme const&) = delete;
     std::ostream& affiche(std::ostream& sortie) const;
     void evolue(SupportADessin& support);
     virtual void dessine_sur(SupportADessin& support) override;

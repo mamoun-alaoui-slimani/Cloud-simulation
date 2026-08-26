@@ -5,16 +5,16 @@
 class CubedAir{
     //Attributs
     private:
-    double z;
-    std::array<double, 3> vitesse;
-    double enthalpie;
-    double temperature;
-    double pression; 
-    double P_eau; //Pression partielle de vapeur d'eau
-    double P_rosee; //Pression de vapeur saturante
-    double tau; //taux d'humidité
-    bool sous_la_montagne;
-    
+    double z = 0.0;
+    std::array<double, 3> vitesse = {0.0, 0.0, 0.0};
+    double enthalpie = 0.0;
+    double temperature = 0.0;
+    double pression = 0.0;
+    double P_eau = 0.0; //Pression partielle de vapeur d'eau
+    double P_rosee = 0.0; //Pression de vapeur saturante
+    double tau = 0.0; //taux d'humidité
+    bool sous_la_montagne = false;
+
 
 
     public:
@@ -32,11 +32,10 @@ class CubedAir{
     void afficheNuage() const;
     std::ostream& afficheNuage(std::ostream& sortie) const;
     
-    /**
-    double getEnthalpie() const;
-    double getTemperature() const;
-    double getPression() const;
-    double getP_eau() const;
-    double getP_rosee() const;
-    */
+    //Accesseurs (utiles a l'affichage et aux tests)
+    double getEnthalpie() const {return enthalpie;}
+    double getTemperature() const {return temperature;}
+    double getPression() const {return pression;}
+    double getP_eau() const {return P_eau;}
+    double getP_rosee() const {return P_rosee;}
 };

@@ -27,8 +27,8 @@ void GLWidget::resizeGL(int width, int height)
 // ======================================================================
 void GLWidget::paintGL()
 {
+  glClearColor(0.135, 0.206, 0.250, 0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
- glClearColor(0.135, 0.206, 0.250, 0);
   systeme.dessine_sur(vue);
 }
 

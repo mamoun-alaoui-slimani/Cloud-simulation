@@ -1,20 +1,15 @@
 QMAKE_CXXFLAGS += -std=c++17
 QMAKE_CXXFLAGS += -Wall -pedantic
 
-TARGET = cloudsim-text
+TARGET = cloudsim-tests
 CONFIG -= app_bundle
 CONFIG += console
 
 LIBS += -L../general -lgeneral
 PRE_TARGETDEPS += ../general/libgeneral.a
 
-INCLUDEPATH += ../general
+INCLUDEPATH += ../general ../text
 
 SOURCES += \
-    main_text.cc \
-    TextViewer.cc
-
-HEADERS += \
-    ../general/Dessinable.h \
-    ../general/SupportADessin.h \
-    TextViewer.h
+    main_tests.cc \
+    ../text/TextViewer.cc

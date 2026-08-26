@@ -18,7 +18,6 @@ Collection3D<CubedAir>::Collection3D(ceil(1 + (Lx/lambda)), ceil(1 + (Ly/lambda)
             for(int k(0); k < nbr_cubes[2]; ++k){
                 collection3D[i][j][k].setz(taille_cube * k);
                 collection3D[i][j][k].setVitesse(std::array<double, 3>({vitesse, 0.0, 0.0}));
-                //On verra ca plus tard...
             }
         }
     }
@@ -67,6 +66,24 @@ void Ciel::dessine_sur(SupportADessin& support){
 }
 
 /**
+ * @brief Indique si le cube d'air en (i, j, k) est nuageux
+ * @param i, j, k indices du cube dans la grille
+ * @return true si la vapeur d'eau y a condensé
+ */
+bool Ciel::Nuageux(int i, int j, int k) const{
+    return collection3D[i][j][k].formationNuage();
+}
+
+/**
+ * @brief Indique si le cube d'air en (i, j, k) est situé sous le relief
+ * @param i, j, k indices du cube dans la grille
+ * @return true si le cube est enterré dans la montagne (donc pas à dessiner)
+ */
+bool Ciel::SousMontagne(int i, int j, int k) const{
+    return collection3D[i][j][k].sousMontagne();
+}
+
+/**
  * @brief Affiche les Nuages sur un flot de sortie
  * 
  * @param sortie flot de sortie
@@ -78,7 +95,7 @@ std::ostream& Ciel::afficheNuages(std::ostream& sortie) const{ //ne devrait pas 
     for(int i(0); i < nbr_cubes[0]; ++i){
         for(int j(0); j < nbr_cubes[1]; ++j){
             for(int k(0); k < nbr_cubes[2]; ++k){
-                if(not(i == 0 or j == 0 or i == nbr_cubes[0] - 1 or j == nbr_cubes[1] - 1 or k == 0 or k == nbr_cubes[2]-1) /*and (collection3D[i][j][k].sousMontagne())*/){
+                if(not(i == 0 or j == 0 or i == nbr_cubes[0] - 1 or j == nbr_cubes[1] - 1 or k == 0 or k == nbr_cubes[2]-1)){
                     sortie << i << " " << j <<" " << k <<" ";
                     collection3D[i][j][k].afficheNuage(sortie);
                     sortie << " " <<std::endl;

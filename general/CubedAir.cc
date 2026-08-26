@@ -66,24 +66,3 @@ std::ostream& CubedAir::afficheNuage(std::ostream& sortie) const{
     sortie << norme2Vitesse() << " " << enthalpie  << " " << temperature << " " << pression << " " <<P_eau << " " << P_rosee << " " << formationNuage();
     return sortie;
 }
-/** Pour le moment pas nécessaire
-double CubedAir::getEnthalpie() const{
-    return enthalpie;
-}
-
-double CubedAir::getTemperature() const{
-    return temperature;
-}
-
-double CubedAir::getPression() const{
-    return pression;
-}
-
-double CubedAir::getP_eau() const{
-    return P_eau;
-}
-
-double CubedAir::getP_rosee() const{
-    return P_rosee;
-}
-*/

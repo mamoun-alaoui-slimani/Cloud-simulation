@@ -22,7 +22,6 @@ class Ciel : Collection3D<CubedAir>, Dessinable {
     bool SousMontagne(int i, int j, int k) const;
     void evolue();
 
-    //void afficheNuages() const; A décommenter une fois la solution trouvée
     std::ostream& afficheNuages(std::ostream& sortie) const;
 };
 

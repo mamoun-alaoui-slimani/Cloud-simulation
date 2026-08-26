@@ -19,26 +19,26 @@ INCLUDEPATH += ../general
 
 SOURCES += \
     main_qt_gl.cc \
-    glwidget.cc \
-    vue_opengl.cc
+    GLWidget.cc \
+    OpenGLRenderer.cc
 
 HEADERS += \
-    glwidget.h \
-    vertex_shader.h \
-    vue_opengl.h \
-    ../general/SupportADessin.h \
-    ../general/Dessinable.h \
-    ../general/ChaineDeMontagnes.h \
-    ../general/ChampPotentiels.h \
-    ../general/Ciel.h \
-    ../general/Collection3D.h \
-    ../general/constantes.h \
-    ../general/CubedAir.h \
-    ../general/Gaussienne.h \
-    ../general/Montagne.h \
-    ../general/Potentiel.h \
-    ../general/Systeme.h \
-    ../general/Vecteur2D.h
+    GLWidget.h \
+    ShaderAttributes.h \
+    OpenGLRenderer.h \
+    ../general/Renderer.h \
+    ../general/Drawable.h \
+    ../general/MountainChain.h \
+    ../general/PotentialField.h \
+    ../general/Sky.h \
+    ../general/Grid3D.h \
+    ../general/constants.h \
+    ../general/AirCell.h \
+    ../general/GaussianPeak.h \
+    ../general/Mountain.h \
+    ../general/Potential.h \
+    ../general/System.h \
+    ../general/Vector2D.h
 
 RESOURCES += \
     resource.qrc

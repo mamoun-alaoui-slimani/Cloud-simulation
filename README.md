@@ -20,29 +20,29 @@ ones become cloudy.
 
 Physical parameters (gas constant, molar masses of dry air and water
 vapour, ground temperature, humidity, free-stream velocity) live in
-`general/constantes.h`.
+`general/constants.h`.
 
 ## Architecture
 
-**Terrain, via the Composite pattern.** `Montagne` is an abstract base
-with a pure virtual `altitude(i, j)`. `Gaussienne` is a single Gaussian
-peak. `ChaineDeMontagnes` both *is* a `Montagne` and *contains* a
-`vector<unique_ptr<Montagne>>`, so a chain of mountains behaves exactly
+**Terrain, via the Composite pattern.** `Mountain` is an abstract base
+with a pure virtual `altitude(i, j)`. `GaussianPeak` is a single Gaussian
+peak. `MountainChain` both *is* a `Mountain` and *contains* a
+`vector<unique_ptr<Mountain>>`, so a chain of mountains behaves exactly
 like a single mountain and can nest arbitrarily. The test suite exercises
 that nesting directly.
 
-**Physics on a 3D grid.** `Collection3D<T>` is a class template providing
-shared 3D grid storage. `ChampPotentiels : Collection3D<Potentiel>` solves
+**Physics on a 3D grid.** `Grid3D<T>` is a class template providing
+shared 3D grid storage. `PotentialField : Grid3D<Potential>` solves
 the velocity-potential field by iterative relaxation until convergence.
-`Ciel : Collection3D<CubedAir>` holds one air parcel per cell. `Systeme`
+`Sky : Grid3D<AirCell>` holds one air parcel per cell. `System`
 owns the terrain, field and sky, and drives the simulation.
 
-**Rendering, via double dispatch (Visitor).** `Dessinable` declares
-`dessine_sur(SupportADessin&)`; `SupportADessin` declares one `dessine(...)`
+**Rendering, via double dispatch (Visitor).** `Drawable` declares
+`drawOn(Renderer&)`; `Renderer` declares one `draw(...)`
 overload per drawable type. An object does not know how to draw itself,
 only how to ask a renderer to draw it. This decouples the physics model
 from any renderer, which is why two completely different views,
-`TextViewer` and `VueOpenGL`, work against the same simulation with no
+`TextRenderer` and `OpenGLRenderer`, work against the same simulation with no
 changes to the physics code.
 
 ## Project structure
@@ -109,7 +109,7 @@ No test framework is required, and no Qt either: the suite builds against
 the physics library alone.
 
     g++ -std=c++17 -I general -I text \
-        general/*.cc text/TextViewer.cc tests/main_tests.cc -o cloudsim-tests
+        general/*.cc text/TextRenderer.cc tests/main_tests.cc -o cloudsim-tests
 
 It covers the Gaussian terrain profile, the Composite nesting of mountain
 chains, the thermodynamics of an air parcel against its analytic limiting
@@ -128,12 +128,12 @@ to the command above reproduces that locally.
   (`glBegin`/`GL_QUADS`, GLSL 1.20). It works, including on Apple's
   Metal-backed OpenGL 2.1, but a modern rewrite around vertex buffers
   would be the natural next step.
-- `Collection3D` stores its grid as `[Nz][Ny][Nx]` while `Ciel` indexes it
+- `Grid3D` stores its grid as `[Nz][Ny][Nx]` while `Sky` indexes it
   as `[i][j][k]`. The two agree only because the simulation uses a cubic
   grid; a non-cubic grid would need this reconciled first.
 - The surface of a cloud puff is a decorative procedural shape
-  (`VueOpenGL::formeNuage`), not simulation output. What is physical is
-  *where* the puffs appear: the air parcels that `Ciel::Nuageux()` marks
+  (`OpenGLRenderer::cloudSurface`), not simulation output. What is physical is
+  *where* the puffs appear: the air parcels that `Sky::isCloudy()` marks
   as condensed.
 
 ## Licence

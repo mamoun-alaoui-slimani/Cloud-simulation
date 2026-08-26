@@ -12,9 +12,9 @@ INCLUDEPATH += ../general
 
 SOURCES += \
     main_text.cc \
-    TextViewer.cc
+    TextRenderer.cc
 
 HEADERS += \
-    ../general/Dessinable.h \
-    ../general/SupportADessin.h \
-    TextViewer.h
+    ../general/Drawable.h \
+    ../general/Renderer.h \
+    TextRenderer.h

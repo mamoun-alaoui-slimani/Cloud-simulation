@@ -2,9 +2,9 @@
     <qresource prefix="/">
         <file>fragment_shader.glsl</file>
         <file>vertex_shader.glsl</file>
-        <file>montagne.jpeg</file>
-        <file>neige.jpeg</file>
-        <file>gazon.jpeg</file>
-        <file>nuages.jpeg</file>
+        <file>rock.jpeg</file>
+        <file>snow.jpeg</file>
+        <file>grass.jpeg</file>
+        <file>clouds.jpeg</file>
     </qresource>
 </RCC>

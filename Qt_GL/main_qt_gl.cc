@@ -1,23 +1,23 @@
 #include <QApplication>
-#include "glwidget.h"
-#include "Systeme.h"
-#include "Gaussienne.h"
+#include "GLWidget.h"
+#include "System.h"
+#include "GaussianPeak.h"
 
 int main(int argc, char* argv[])
 {
   QApplication a(argc, argv);
 
-  ChampPotentiels champPotentiel(30, 30, 30, 20.0/29.0);
+  PotentialField potentialField(30, 30, 30, 20.0/29.0);
 
   /* Une chaîne peut contenir d'autres chaînes : voir les tests, qui
-     vérifient qu'une chaîne imbriquée se comporte comme une montagne. */
-  std::vector<std::unique_ptr<Montagne>> chaine;
-  chaine.emplace_back(std::unique_ptr<Montagne>(new Gaussienne(15.0, 15.0, 15.0, 5.0, 5.0)));
-  ChaineDeMontagnes chaines(chaine);
+     vérifient qu'une chaîne imbriquée se comporte comme une mountain. */
+  std::vector<std::unique_ptr<Mountain>> chain;
+  chain.emplace_back(std::unique_ptr<Mountain>(new GaussianPeak(15.0, 15.0, 15.0, 5.0, 5.0)));
+  MountainChain terrain(chain);
 
-  Systeme systeme(champPotentiel, chaines);
+  System system(potentialField, terrain);
 
-  GLWidget w(systeme);
+  GLWidget w(system);
   w.show();
 
   return a.exec();

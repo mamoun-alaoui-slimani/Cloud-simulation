@@ -12,4 +12,4 @@ INCLUDEPATH += ../general ../text
 
 SOURCES += \
     main_tests.cc \
-    ../text/TextViewer.cc
+    ../text/TextRenderer.cc

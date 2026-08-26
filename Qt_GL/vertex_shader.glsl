@@ -1,13 +1,13 @@
-attribute vec3 sommet;
-attribute vec2 coordonnee_texture;
+attribute vec3 vertex;
+attribute vec2 textureCoord;
 
 uniform mat4 projection;
-uniform mat4 vue_modele;
+uniform mat4 modelView;
 
-varying vec2 ma_coordonnee_texture;
+varying vec2 fragTextureCoord;
 
 void main()
 {
-  gl_Position = projection * vue_modele * vec4(sommet, 1.0);
-  ma_coordonnee_texture = coordonnee_texture;
+  gl_Position = projection * modelView * vec4(vertex, 1.0);
+  fragTextureCoord = textureCoord;
 }

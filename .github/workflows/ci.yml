@@ -23,12 +23,12 @@ jobs:
         run: |
           g++ -std=c++17 -Wall -Wextra -pedantic \
               -I general -I text \
-              general/*.cc text/TextViewer.cc tests/main_tests.cc -o cloudsim-tests
+              general/*.cc text/TextRenderer.cc tests/main_tests.cc -o cloudsim-tests
           ./cloudsim-tests
 
       - name: Re-run the tests under AddressSanitizer and UBSan
         run: |
           g++ -std=c++17 -g -fsanitize=address,undefined \
               -I general -I text \
-              general/*.cc text/TextViewer.cc tests/main_tests.cc -o cloudsim-tests-asan
+              general/*.cc text/TextRenderer.cc tests/main_tests.cc -o cloudsim-tests-asan
           ./cloudsim-tests-asan

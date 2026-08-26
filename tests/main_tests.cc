@@ -14,6 +14,7 @@
 
 #include "Ciel.h"
 #include "ChaineDeMontagnes.h"
+#include "ChampPotentiels.h"
 #include "CubedAir.h"
 #include "Gaussienne.h"
 #include "SupportADessin.h"
@@ -182,6 +183,34 @@ void testCiel()
     VERIFIE(nuageux == 0);
 }
 
+// ------------------------------------------ champ de potentiels : bornes
+
+void testChampPotentiels()
+{
+    std::cout << "ChampPotentiels (bornes)" << std::endl;
+
+    ChampPotentiels champ(6, 6, 6, 1.0);
+    Gaussienne relief(3.0, 3.0, 4.0, 1.0, 1.0);
+    champ.initialise(Physique::v_infini, relief);
+
+    VERIFIE(champ.getNbrCubes()[0] == 6);
+    VERIFIE_PROCHE(champ.getTailleCube(), 1.0, 1e-12);
+
+    /* Tout indice hors de la boite doit etre traite comme un potentiel nul,
+       sans jamais indexer hors bornes. L'indice N (et non N-1) est le cas
+       limite : la garde utilisait <= et le laissait passer. */
+    VERIFIE(champ.potentielNul(6, 0, 0));
+    VERIFIE(champ.potentielNul(0, 6, 0));
+    VERIFIE(champ.potentielNul(0, 0, 6));
+    VERIFIE(champ.potentielNul(-1, 0, 0));
+    VERIFIE(champ.potentielNul(0, -1, 0));
+    VERIFIE(champ.potentielNul(0, 0, -1));
+    VERIFIE(champ.potentielNul(1000, 1000, 1000));
+
+    // Un indice valide reste interrogeable normalement.
+    (void)champ.potentielNul(5, 5, 5);
+}
+
 // ------------------------------------------- rendu : double dispatch (Visitor)
 
 namespace {
@@ -245,6 +274,7 @@ int main()
     testChaineDeMontagnes();
     testCubedAir();
     testCiel();
+    testChampPotentiels();
     testDoubleDispatch();
     testTextViewer();
 

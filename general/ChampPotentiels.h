@@ -28,8 +28,7 @@ class ChampPotentiels : protected Collection3D<Potentiel>{
     void affiche_laplaciens() const;
     void affiche_vitesses() const;
     std::ostream& affiche_vitesses(std::ostream& sortie) const;
-    //void dessine_sur(SupportADessin const& support) const;
-   
+
     //getters
     double getTailleCube() const;
     std::array<int, 3> getNbrCubes() const;

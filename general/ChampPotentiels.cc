@@ -68,7 +68,6 @@ void ChampPotentiels::affiche_potentiels() const {
             for(int k(0); k < nbr_cubes[2]; ++k){
                 std::cout << i  <<" " << j <<" " << k <<" ";
                 collection3D[i][j][k].affichePotentiel();
-                //std::cout <<" " << std::endl; //Parfois nécessaire pour gnuplot
                 std::cout << std::endl;
             }
         }
@@ -83,11 +82,9 @@ void ChampPotentiels::affiche_laplaciens() const {
     for(int i(0); i < nbr_cubes[0]; ++i){
         for(int j(0); j < nbr_cubes[1]; ++j){
             for(int k(0); k < nbr_cubes[2]; ++k){
-               //if(not(i == 0 or j == 0 or i == nbr_cubes[0] - 1 or j == nbr_cubes[1] - 1 or k == 0 or k == nbr_cubes[2]-1)){
                 std::cout << i << " " << j <<" " << k <<" ";
                 collection3D[i][j][k].afficheLaplacien();
                 std::cout << " " <<std::endl;
-                //} //Partie commentée peut être décommentée pour éviter l'affichage au bord pour la comparaison avec les fichiers donnés en exemple.
             }
         }
     }
@@ -132,7 +129,6 @@ void ChampPotentiels::resolution(double seuil, int IteMax, bool affiche){
     int Ite(1);
     double erreur(this->erreur());
     while((seuil < erreur) and (Ite <= IteMax)){
-        //std::cout << Ite <<" " <<erreur <<std::endl;
         this->iteration();
         this->calcule_laplaciens();
         if(affiche){
@@ -142,7 +138,6 @@ void ChampPotentiels::resolution(double seuil, int IteMax, bool affiche){
         erreur = this->erreur(); //Actualisation de l'erreur avec les nouvelles valeurs des potentiels.
         Ite++;
     }
-    //std::cout << Ite <<" " <<erreur <<std::endl;
 }
 
 /**
@@ -166,12 +161,17 @@ std::array<double, 3> ChampPotentiels::vitesse(int i, int j, int k) const{
     return vitesse;
 }
 
+/**
+ * @brief Indique si le potentiel en (i, j, k) est nul, donc sous le relief.
+ *
+ * Les indices hors de la boite sont consideres comme nuls plutot que
+ * d'indexer hors bornes.
+ */
 bool ChampPotentiels::potentielNul(int i, int j, int k) const {
-    if(0 <= i and i <= nbr_cubes[0] and 0 <= j and j <= nbr_cubes[1] and 0 <= k and k <= nbr_cubes[2]){
+    if(0 <= i and i < nbr_cubes[0] and 0 <= j and j < nbr_cubes[1] and 0 <= k and k < nbr_cubes[2]){
         return collection3D[i][j][k].PotentielNul();
     }
-    return true; //On considere le potentiel nul s'il est en dehors des limites de l'espace
-
+    return true;
 }
 
 /** @brief Affiche les indices du point, les composantes du vecteur potentiel, la vitesse et sa norme au carré (v2) pour tous les points de notre boîte selon le format suivant:

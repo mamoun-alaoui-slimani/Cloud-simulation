@@ -1,0 +1,34 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Build and test (no Qt required)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the console simulation
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+              -I general general/*.cc text/*.cc -o cloudsim-text
+
+      - name: Build and run the unit tests
+        run: |
+          g++ -std=c++17 -Wall -Wextra -pedantic \
+              -I general -I text \
+              general/*.cc text/TextViewer.cc tests/main_tests.cc -o cloudsim-tests
+          ./cloudsim-tests
+
+      - name: Re-run the tests under AddressSanitizer and UBSan
+        run: |
+          g++ -std=c++17 -g -fsanitize=address,undefined \
+              -I general -I text \
+              general/*.cc text/TextViewer.cc tests/main_tests.cc -o cloudsim-tests-asan
+          ./cloudsim-tests-asan

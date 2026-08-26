@@ -1,5 +1,7 @@
 # Orographic Cloud Formation Simulation
 
+[![tests](https://github.com/mamoun-alaoui-slimani/Cloud-simulation/actions/workflows/ci.yml/badge.svg)](https://github.com/mamoun-alaoui-slimani/Cloud-simulation/actions/workflows/ci.yml)
+
 A C++ simulation of cloud formation over mountainous terrain, with two
 interchangeable renderers: a text view and a real-time 3D OpenGL view.
 
@@ -103,13 +105,22 @@ so the first frame takes a few seconds to appear.
 ./tests/cloudsim-tests
 ```
 
-No test framework is required. The suite covers the Gaussian terrain
-profile, the Composite nesting of mountain chains, the thermodynamics of
-an air parcel against its analytic limiting case (at ground level and at
-the free-stream wind speed, temperature and pressure must come back
-exactly to their values at infinity), grid dimensions, the double-dispatch
-rendering path, and the console renderer. It exits non-zero on failure, so
-it drops straight into CI.
+No test framework is required, and no Qt either: the suite builds against
+the physics library alone.
+
+    g++ -std=c++17 -I general -I text \
+        general/*.cc text/TextViewer.cc tests/main_tests.cc -o cloudsim-tests
+
+It covers the Gaussian terrain profile, the Composite nesting of mountain
+chains, the thermodynamics of an air parcel against its analytic limiting
+case (at ground level and at the free-stream wind speed, temperature and
+pressure must come back exactly to their values at infinity), the bounds
+handling of the potential field, grid dimensions, the double-dispatch
+rendering path, and the console renderer.
+
+CI builds the console simulation, runs the suite, then runs it again under
+AddressSanitizer and UndefinedBehaviorSanitizer. Adding `-fsanitize=address,undefined`
+to the command above reproduces that locally.
 
 ## Notes and known limitations
 
@@ -124,3 +135,7 @@ it drops straight into CI.
   (`VueOpenGL::formeNuage`), not simulation output. What is physical is
   *where* the puffs appear: the air parcels that `Ciel::Nuageux()` marks
   as condensed.
+
+## Licence
+
+MIT. See `LICENSE`.

@@ -6,9 +6,9 @@
 #include "Potential.h"
 
 /**
- * @brief Calcul le laplacian lié à un vecteur potential. 
+ * @brief Discrete Laplacian of the potential at this point.
  * 
- * Notation i,j,k : indice différent de celui de l'instance courante m1,p1: moins ou plus 1
+ * Naming: i, j, k is the axis that differs from the current cell;
  * 
  * @param Vi_m1 
  * @param Vj_m1 
@@ -23,8 +23,8 @@ Potential const& Vi_p1, Potential const& Vj_p1, Potential const& Vk_p1){
 }
 
 /**
- * @brief afficher le Potential.
- * setprecision à 14 
+ * @brief Prints the potential.
+ * Uses setprecision(14).
  */
 void Potential::printPotential() const {
     std::cout <<std::setprecision(14) <<potential;
@@ -35,7 +35,7 @@ std::ostream& Potential::printPotential(std::ostream& out) const {
     return out;
 }
 /**
- * @brief afficher le Laplacien. 
+ * @brief Prints the Laplacian, with setprecision(15).
  * setprecision = 15
  */
 void Potential::printLaplacian() const {
@@ -43,18 +43,18 @@ void Potential::printLaplacian() const {
 }
 
 /**
- * @brief Donne la norm Euclidienne du Laplacien
+ * @brief Squared Euclidean norm of the Laplacian.
  * 
- * @return double norm euclidienne du Laplacien
+ * @return the squared norm
  */
 double Potential::laplacianSquaredNorm() const{
     return laplacian.squaredNorm();
 }
 
 /**
- * @brief Test si le Vector2D potential est nul ou pas
+ * @brief Whether the potential vector is zero, meaning the cell sits
  * 
- * @return true si nul, false sinon
+ * below the terrain and is excluded from the solve.
  */
 bool Potential::isZero() const{
     if(potential == Vector2D()) return true;
@@ -62,18 +62,18 @@ bool Potential::isZero() const{
 }
 
 /**
- * @brief Recalcule de l'attribut potential pour la résolution des équations de Laplace.
+ * @brief Relaxation step: nudges the potential along its Laplacian.
  */
 void Potential::iterate(const double eps){
         potential += eps * laplacian;
 }
 
 /**
- * @brief Calcule la velocity d'un point de la boîte grâce aux potentiels alentours. 
+ * @brief Velocity at a point, from the potentials of its neighbours.
  * 
- * La velocity est passée en référence pour éviter de créer une nouvelle instance de std::vector<double>. 
+ * The velocity is passed by reference to avoid allocating a new array.
  * 
- * Notation: P : Potential i,j,k: indice changé par rapport à celui de l'instance courante m1, p1: moins ou plus 1 sur l'indice
+ * Naming: P is a potential; i, j, k is the axis that differs from the
  */
 void Potential::velocity(std::array<double, 3>& velocity, Potential const& Pi_m1, Potential const& Pj_m1, Potential const& Pk_m1,
     Potential const& Pi_p1, Potential const& Pj_p1, Potential const& Pk_p1) const {

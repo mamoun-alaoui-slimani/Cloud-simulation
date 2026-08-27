@@ -4,12 +4,12 @@
 #include <cmath>
 
 /**
- * @brief Constructeur de Sky demandé. Initialise tous les cubes d'air selon les conditions initiales et donne une velocity du vent uniforme selon une direction (x).
- * @param Lx longueur de la boîte dans la direction x
- * @param Ly longueur de la boîte dans la direction y
- * @param Lz longueur de la boîte dans la direction z
- * @param lambda pas d'échantillonage
- * @param velocity première composante de la velocity des cubes d'air.
+ * @brief Builds a sky of the given size, with a uniform wind along x.
+ * @param Lx box length along x
+ * @param Ly box length along y
+ * @param Lz box length along z
+ * @param lambda sampling step, the edge length of a cell
+ * @param velocity first component of the wind velocity
  */ 
 Sky::Sky(double Lx, double Ly, double Lz, double lambda, double velocity):
 Grid3D<AirCell>::Grid3D(ceil(1 + (Lx/lambda)), ceil(1 + (Ly/lambda)), ceil(1 + (Lz/lambda)), lambda){
@@ -24,7 +24,7 @@ Grid3D<AirCell>::Grid3D(ceil(1 + (Lx/lambda)), ceil(1 + (Ly/lambda)), ceil(1 + (
 }
 
 /**
- * @brief Met à jour les valeurs contenues dans les AirCell du Sky
+ * @brief Updates every air cell of the sky.
  * 
  */
 void Sky::update(){
@@ -40,8 +40,8 @@ void Sky::update(){
 Sky::Sky() : Grid3D<AirCell>::Grid3D<AirCell>() {}
 
 /**
- * @brief Constructeur de sky se basant sur une instance déjà créée de PotentialField. Initialise aussi les attributs avec les conditions initiales.
- * @param cp Instance de ChampPotentiel
+ * @brief Builds a sky from an already solved potential field.
+ * @param cp the solved potential field
  */ 
 Sky::Sky(PotentialField const& cp)
 : Grid3D::Grid3D(cp.getCellCount()[0], cp.getCellCount()[1], cp.getCellCount()[2], cp.getCellSize()) {
@@ -57,41 +57,40 @@ Sky::Sky(PotentialField const& cp)
 }
 
 /**
- * @brief Dessine le Sky sur un renderer
+ * @brief Draws the sky on a renderer.
  * 
- * @param renderer renderer sur lequel dessiner le Sky (Texte, graphique, écran, fichier...)
+ * @param renderer surface to draw on (console, screen, file...)
  */
 void Sky::drawOn(Renderer& renderer){
     renderer.draw(*this);
 }
 
 /**
- * @brief Indique si le cube d'air en (i, j, k) est nuageux
- * @param i, j, k indices du cube dans la grille
- * @return true si la vapeur d'eau y a condensé
+ * @brief Whether the air cell at (i, j, k) is cloudy.
+ * @param i, j, k indices of the cell in the grid
+ * @return true when water vapour has condensed there
  */
 bool Sky::isCloudy(int i, int j, int k) const{
     return cells[i][j][k].isCloudy();
 }
 
 /**
- * @brief Indique si le cube d'air en (i, j, k) est situé sous le relief
- * @param i, j, k indices du cube dans la grille
- * @return true si le cube est enterré dans la mountain (donc pas à dessiner)
+ * @brief Whether the cell at (i, j, k) sits below the terrain.
+ * @param i, j, k indices of the cell in the grid
+ * @return true when the cell is buried in the mountain, so not drawn
  */
 bool Sky::isBelowTerrain(int i, int j, int k) const{
     return cells[i][j][k].isBelowTerrain();
 }
 
 /**
- * @brief Affiche les Nuages sur un stream de out
+ * @brief Prints the cloud state of every cell.
  * 
- * @param out stream de out
- * @param m Mountain à utiliser pour évaluer la formation de Nuage
- * @return stream de out modifié
+ * @param out output stream
+ * @return the stream
  */
-std::ostream& Sky::printClouds(std::ostream& out) const{ //ne devrait pas prendre la Mountain en paramètre car pas accès lors de l'affichage avec TextRenderer
-    out <<"Les nuages du ciel : " <<std::endl;
+std::ostream& Sky::printClouds(std::ostream& out) const{
+    out <<"Clouds in the sky: " <<std::endl;
     for(int i(0); i < cellCount[0]; ++i){
         for(int j(0); j < cellCount[1]; ++j){
             for(int k(0); k < cellCount[2]; ++k){

@@ -3,21 +3,21 @@
 #include <iostream>
 
 /**
- * @brief Représentation des vecteurs de dimension 2 au sens mathématique
+ * @brief A mathematical vector in two dimensions.
  * 
  */
 class Vector2D{
 
 public:
 
-//Propres à l'instance courante
-    Vector2D(double x = 0.0, double y = 0.0); //valeurs par défaut pour constructeur par défaut.
+//Instance methods
+    Vector2D(double x = 0.0, double y = 0.0); //defaults give a default constructor
     void setCoords(double NVx, double NVy);
     std::ostream& print(std::ostream& out) const;
 //Getters
     double getX() const {return x_;}
     double getY() const {return y_;}
-//Opérations sur les vecteurs 
+//Vector operations
     bool compare(Vector2D const& other, double precision = 1e-10) const; 
     double squaredNorm() const;
     double norm() const;
@@ -28,14 +28,14 @@ public:
      
     double operator*=(Vector2D const& other);
 
-//Déclaration des attributs, voir REPONSES P1.1 pour plus de détails
+//Attributes
 private:
 
     double x_;
     double y_;
 };
 
-//pas d'utilisation de namespace std dans les headers.
+//no using-directive for std in a header
 std::ostream& operator<<(std::ostream& out, Vector2D const& vec);
 
 bool operator==(Vector2D const& vec1, Vector2D const& vec2);
@@ -45,9 +45,9 @@ Vector2D operator+(Vector2D const& vec1, Vector2D vec2);
 Vector2D operator-(Vector2D vec1, Vector2D const& vec2);
 double operator*(Vector2D vec1, Vector2D const& vec2);
 Vector2D operator*(Vector2D vec, double scalar);
-//commutativité de la loi de multiplication externe
+//commutativity of scalar multiplication
 Vector2D operator*(double scalar, Vector2D);
-//retourne vecteur unitaire
+//returns the unit vector
 Vector2D operator~(Vector2D const& vec);
-//Remplace oppose()
+//replaces oppose()
 Vector2D operator-(Vector2D const& vec);

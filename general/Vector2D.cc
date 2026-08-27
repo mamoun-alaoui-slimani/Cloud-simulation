@@ -1,22 +1,22 @@
 
 #include <iostream>
-#include "Vector2D.h" //besoin de la définition de la classe.
-#include <cmath> //pour la fonction abs()
+#include "Vector2D.h"
+#include <cmath> //for abs()
 using namespace std;
 
 /**
- * @brief Construit un nouvel objet Vector2D
+ * @brief Builds a vector from its two coordinates.
  * 
- * @param x abscisse du vecteur
- * @param y ordonnée du vecteur
+ * @param x abscissa
+ * @param y ordinate
  */
 Vector2D::Vector2D(double x, double y): x_(x), y_(y) {}
 
 /**
- * @brief Permet de modifier la valeur d'une coordonnée du Vecteur
+ * @brief Sets both coordinates.
  * 
- * @param x nouvelle abscisse du vecteur
- * @param y nouvelle ordonnée du vecteur
+ * @param x new abscissa
+ * @param y new ordinate
  */
 void Vector2D::setCoords(double x, double y){ 
    x_ = x;
@@ -24,31 +24,31 @@ void Vector2D::setCoords(double x, double y){
 }
 
 /**
- * Permet l'affichage sur "cout" d'un objet Vector2D
+ * Prints the vector on a stream.
  * 
- * @param out est de type ostream& pour la surcharge de operator<<
- * @return ostream& pour pouvoir afficher plusieurs Vecteurs avec cout
+ * @param out output stream
+ * @return the stream, so several vectors can be chained
  */
-ostream& Vector2D::print(ostream& out) const { //const car pas de modif de x et y
+ostream& Vector2D::print(ostream& out) const { //const: x and y are not modified
     out << x_ <<" "<< y_;
     return out;
 }
 
 /**
- * @brief Teste l'égalité de l'objet Vector2D courant à un autre objet similaire
+ * @brief Compares this vector to another, within a tolerance.
  * 
- * @param other Vecteur à comparer
- * @param precision precision souhaitée pour la comparaison
- * @return true si les deux vecteurs sont égaux. false sinon
+ * @param other vector to compare against
+ * @param precision tolerance of the comparison
+ * @return true when the two vectors are equal within that tolerance
  */
 bool Vector2D::compare(Vector2D const& other, double precision) const{
     return ((abs(x_ - other.x_) <= precision) and (abs(y_ - other.y_) <= precision));
 }
 
 /**
- * @brief Surcharge de += pour l'addition de deux vecteurs (Vector2D). Surcharge interne.
+ * @brief Adds another vector to this one.
  * @param other
- * @return Vector2D | addition de l'instance courante avec other. donc pas de nouvel objet créé donc référence.
+ * @return this vector, modified
  */
 Vector2D& Vector2D::operator+=(Vector2D const& other){
     x_ += other.x_;
@@ -57,9 +57,9 @@ Vector2D& Vector2D::operator+=(Vector2D const& other){
 }
 
 /**
- * @brief Surcharge de -= pour la soustraction. Surcharge interne.
+ * @brief Subtracts another vector from this one.
  * @param other Vector2D
- * @return Vector2D | Soustraction de l'instance courante avec other
+ * @return this vector, modified
  */
 Vector2D& Vector2D::operator-=(Vector2D const& other){
     x_ -= other.x_;
@@ -68,9 +68,9 @@ Vector2D& Vector2D::operator-=(Vector2D const& other){
 }
 
 /**
- * @brief Surcharge de *= pour la loi de multiplication externe. Surcharge interne.
+ * @brief Scales this vector by a scalar.
  * @param scalar
- * @return Vector2D | produit de l'instance courante (Vector2D) avec scalar
+ * @return this vector, modified
  */
 Vector2D& Vector2D::operator*=(double scalar){
     x_ *= scalar;
@@ -79,59 +79,59 @@ Vector2D& Vector2D::operator*=(double scalar){
 }
 
 /**
- * @brief Surcharge de *= pour le produit scalar. Surcharge interne.
+ * @brief Dot product with another vector.
  * @param other
- * @return double | produit scalar de l'instance courante avec other
+ * @return the dot product
  */
 double Vector2D::operator*=(Vector2D const& other){
     return x_ * other.x_ + y_ * other.y_;
 }
 
 /**
- * @brief Calcul le carré de la norm du vecteur courant
+ * @brief Squared norm of this vector.
  * 
- * @return double le carré de la norm du vecteur courant
+ * @return the squared norm
  */
 double Vector2D::squaredNorm() const {
     return x_ * x_ + y_ * y_;
 }
 
 /**
- * @brief Calcul la norm du vecteur courant
+ * @brief Norm of this vector.
  * 
- * @return double la norm du vecteur courant
+ * @return the norm
  */
 double Vector2D::norm() const {
     return sqrt(squaredNorm());
 }
 
 /**
- * @brief Surcharge de l'opérateur d'affichage.
+ * @brief Stream insertion operator.
  * 
  * @param out 
  * @param vec 
  * @return ostream& 
- * La méthode publique print() a été gardée pour permettre un accès facile aux attributs de Vector2D ceux-ci étant privé. Permet une surcharge externe de <<.
+ * print() stays public so the private attributes remain reachable.
  */
 ostream& operator<<(ostream& out, Vector2D const& vec){
     return vec.print(out);
 }
 /**
- * @brief Surcharge de l'opérateur ==
+ * @brief Equality, delegating to compare().
  * 
  * @param vec2
  * @param vec1 
- * @return la méthode publique compare() a été gardée pour avoir une surcharge externe de l'opérateur == tout en ayant un accès facile aux attributs privés de Vector2D. La garder permet aussi de changer plus facilement le paramètre de précision.
+ * @return true when the vectors are equal
  */
 bool operator==(Vector2D const& vec1, Vector2D const& vec2){ 
     return vec1.compare(vec2); 
 }
 
 /**
- * @brief Surcharge de l'opérateur != pour des manipulations plus simples des vecteurs dans des évaluations de type bool
+ * @brief Inequality.
  * @param vec1
  * @param vec2
- * @return doit retourner faux si les vecteurs sont les mêmes, vrai sinon.
+ * @return false when the vectors are the same, true otherwise
  */
 bool operator!=(Vector2D const& vec1, Vector2D const& vec2){
     if(vec1 == vec2) return false;
@@ -139,69 +139,69 @@ bool operator!=(Vector2D const& vec1, Vector2D const& vec2){
 }
 
 /**
- * @brief Surcharge de + 
+ * @brief Vector addition.
  * @param vec1 
- * @param vec2 celui à qui on ajoute vec1 donc pas de const&
- * @return Vecteur 2D (nouvel objet) appelle operator += pour optimisation et cohérence
+ * @param vec2 taken by value, since it receives the sum
+ * @return the sum, computed through operator+=
  */
 Vector2D operator+(Vector2D const& vec1, Vector2D vec2){
     return vec2.operator+=(vec1);
 }
 /**
  * @brief Surcharge de -
- * @param vec1 celui à qui on soustrait vec2, donc pas de const&
+ * @param vec1 taken by value, since it receives the difference
  * @param vec2
- * @return appelle operator -= pour optimisation et cohérence
+ * @return the difference, computed through operator-=
  */
 Vector2D operator-(Vector2D vec1, Vector2D const& vec2){
     return vec1.operator-=(vec2);
 }
 /**
- * @brief Surcharge de * pour le produit scalar 
+ * @brief Dot product of two vectors.
  * @param vec1
  * @param vec2
- * @return appelle operator *= pour optimisation et cohérence
+ * @return the dot product, computed through operator*=
  */
 double operator*(Vector2D vec1, Vector2D const& vec2){
     return vec1.operator*=(vec2);
 }
 /**
- * @brief Surcharge de * pour multiplication d'un scalar avec un vecteur
+ * @brief Vector times scalar.
  * @param vec
  * @param scalar
- * @return appelle operator *= pour la multiplication avec avec scalar pour optimisation et cohérence
+ * @return the scaled vector, computed through operator*=
  */
 Vector2D operator*(Vector2D vec, double scalar){
     return vec.operator*=(scalar);
 }
 /**
- * @brief Surcharge de * pour multiplication d'un scalar avec un vecteur trroisième surcharge nécessaire pour scalar * vec plutôt  que seulement vec * scalar.
+ * @brief Scalar times vector, so multiplication commutes.
  * @param scalar
  * @param vec
- * @return appelle operator *= pour la multiplication avec avec scalar pour optimisation et cohérence
+ * @return the scaled vector, computed through operator*=
  */
 Vector2D operator*(double scalar, Vector2D vec){
     return vec.operator*=(scalar);
 }
 
 /**
- * @brief Surcharge de l'opérateur unaire ~
+ * @brief Unary ~ : the unit vector with the same direction.
  * @param vec
- * @return Vector2D retourne un vecteur de norm 1 qui a la même direction et sens que le vecteur pris en paramètre.
+ * @return a vector of norm 1, or the zero vector unchanged
  */
 Vector2D operator~(Vector2D const& vec){
     double norm(vec.norm());
-    //Evite la division par 0 dans le cas où le vecteur est le vecteur nul
+    //guards against dividing by zero for the null vector
     if(norm != 0) return vec * (1 / norm); 
     else {
-        return vec; //si le vecteur est nul on retourne l'instance courante.
+        return vec; //the null vector is returned unchanged
     }
 }
 
 /**
- * @brief surcharge de " - " un seul paramètre
+ * @brief Unary minus.
  * @param vec
- * @return Vector2D retourne l'opposé du vecteur passé en paramètre.
+ * @return the opposite vector
  */ 
 Vector2D operator-(Vector2D const& vec){
     Vector2D opposite;

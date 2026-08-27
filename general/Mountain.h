@@ -1,7 +1,7 @@
 /**
  * @file Mountain.h
  * @author Mamoun Alaoui Slimani
- * @brief Fichier d'en-tête pour la classe Mountain
+ * @brief Abstract base class for the terrain.
  * @version 0.1
  * @date 2021-03-18
  */
@@ -11,7 +11,7 @@
 #include "Drawable.h"
 
 /**
- * @brief Représentation d'une mountain
+ * @brief A mountain, defined only by its altitude at each point.
  */
 class Mountain : Drawable{
     protected:

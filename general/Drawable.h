@@ -3,17 +3,17 @@
 class Renderer;
 
 /**
- * @brief Interface des objets capables de se dessiner sur un Renderer.
+ * @brief Interface for objects that can be drawn on a Renderer.
  *
- * Premiere moitie du double dispatch : l'objet ne sait pas se dessiner,
- * il sait seulement demander a un renderer de le dessiner.
+ * First half of the double dispatch: an object does not know how to draw
+ * itself, it only knows how to ask a renderer to draw it.
  */
 class Drawable {
 public:
   virtual void drawOn(Renderer& renderer) = 0;
 
-  Drawable()                             = default;
-  virtual ~Drawable()                    = default;
+  Drawable()                           = default;
+  virtual ~Drawable()                  = default;
   Drawable(Drawable const&)            = default;
   Drawable& operator=(Drawable const&) = default;
   Drawable(Drawable&&)                 = default;

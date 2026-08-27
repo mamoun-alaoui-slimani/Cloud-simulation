@@ -4,10 +4,10 @@ class Mountain;
 class Sky;
 
 /**
- * @brief Interface d'un renderer de dessin (console, renderer OpenGL, fichier...).
+ * @brief Interface of a drawing surface (console, OpenGL window, file...).
  *
- * Seconde moitie du double dispatch : une surcharge de draw() par type
- * dessinable. Ajouter un rendu ne demande aucune modification du modele.
+ * Second half of the double dispatch: one draw() overload per drawable
+ * type. Adding a new view requires no change to the model.
  */
 class Renderer
 {
@@ -15,9 +15,9 @@ public:
   virtual void draw(Mountain const& mountain) = 0;
   virtual void draw(Sky const& sky) = 0;
 
-  Renderer()                                 = default;
-  virtual ~Renderer()                        = default;
-  // on ne copie pas les supports, mais on peut les deplacer
+  Renderer()                           = default;
+  virtual ~Renderer()                  = default;
+  // renderers are not copied, but they can be moved
   Renderer(Renderer const&)            = delete;
   Renderer& operator=(Renderer const&) = delete;
   Renderer(Renderer&&)                 = default;

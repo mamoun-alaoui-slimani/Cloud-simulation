@@ -12,8 +12,8 @@ private:
 
 public:
     System(PotentialField const& cp, MountainChain& chain);
-    /* Pas de copie : MountainChain detient un vector<unique_ptr<Mountain>>,
-       qui n'est pas copiable sans un clone() virtuel sur Mountain. */
+    /* Not copyable: MountainChain owns a vector<unique_ptr<Mountain>>,
+       which cannot be copied without a virtual clone() on Mountain. */
     System(System const&) = delete;
     System& operator=(System const&) = delete;
     std::ostream& print(std::ostream& out) const;

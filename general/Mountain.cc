@@ -7,7 +7,7 @@ Mountain::Mountain(double i0, double j0, double h, double sx, double sy)
 { }
 
 std::ostream& Mountain::print(std::ostream& out) const {
-    out << "i0: " << i0 << ", j0: " << j0 << ", hauteur: " << height << ", sigma_x: " << sigmaX << ", sigma_y: " << sigmaY << std::endl;
+    out << "i0: " << i0 << ", j0: " << j0 << ", height: " << height << ", sigmaX: " << sigmaX << ", sigmaY: " << sigmaY << std::endl;
     return out;
 }
 

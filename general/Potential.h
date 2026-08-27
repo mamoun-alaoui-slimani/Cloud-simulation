@@ -10,11 +10,11 @@ class Potential{
 
     public:
     //Constructeurs
-    Potential() = default; //Nécessaire pour l'initialisation simple d'une instance de PotentialField
+    Potential() = default; //needed so a PotentialField can be sized in one go
     Potential(Vector2D const& p, Vector2D const& l) 
     : potential(p), laplacian(l) {}
 
-    //Résolution des équations et velocity
+    //Solving the equations, and velocity
     void computeLaplacian(Potential const& Vi_m1, Potential const& Vj_m1, Potential const& Vk_m1,
     Potential const& Vi_p1, Potential const& Vj_p1, Potential const& Vk_p1);
 
@@ -22,9 +22,9 @@ class Potential{
     void velocity(std::array<double, 3>& velocity, Potential const& Pi_m1, Potential const& Pj_m1, Potential const& Pk_m1,
     Potential const& Pi_p1, Potential const& Pj_p1, Potential const& Pk_p ) const;
 
-    //Informations sur attributs
-    double laplacianSquaredNorm() const; //retourne la norm au carré du laplacian
-    bool isZero() const; //Permet de savoir si le potential est à (0,0)
+    //Queries on the attributes
+    double laplacianSquaredNorm() const; //squared norm of the Laplacian
+    bool isZero() const; //true when the potential is (0,0), i.e. below the terrain
     
     //Affichage
     void printPotential() const;

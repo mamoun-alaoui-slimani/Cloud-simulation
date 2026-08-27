@@ -36,7 +36,7 @@ void GLWidget::paintGL()
 // ======================================================================
 void GLWidget::keyPressEvent(QKeyEvent* event)
 {
-  constexpr double smallAngle(5.0); // en degrés
+  constexpr double smallAngle(5.0); // in degrees
   constexpr double smallStep(1.0);
 
   switch (event->key()) {
@@ -118,11 +118,11 @@ void GLWidget::timerEvent(QTimerEvent* event)
 void GLWidget::pause()
 {
   if (timerId == 0) {
-	// dans ce cas le timer ne tourne pas alors on le lance
+	// the timer is not running, so start it
     timerId = startTimer(2500);
 	stopwatch.restart();
   } else {
-	// le timer tourne alors on l'arrête
+	// the timer is running, so stop it
 	killTimer(timerId);
 	timerId = 0;
   }

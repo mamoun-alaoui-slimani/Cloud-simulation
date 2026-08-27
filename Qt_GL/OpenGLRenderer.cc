@@ -1,5 +1,5 @@
 #include "OpenGLRenderer.h"
-#include "ShaderAttributes.h" // Identifiants Qt de nos différents attributs
+#include "ShaderAttributes.h" // Qt ids of the shader attributes
 #include <QOpenGLContext>
 #include <QOpenGLTexture>
 #include <QImage>
@@ -9,7 +9,7 @@
 // ======================================================================
 OpenGLRenderer::~OpenGLRenderer()
 {
-  // Libère la mémoire des textures
+  // Frees the textures
   delete cloudTexture;
   delete rockTexture;
   delete grassTexture;
@@ -19,7 +19,7 @@ OpenGLRenderer::~OpenGLRenderer()
 // ======================================================================
 void OpenGLRenderer::draw(Sky const& sky)
 {
-  program.bind(); // Qt 6 délie le programme entre les frames
+  program.bind(); // Qt 6 unbinds the program between frames
 
   cellCount = sky.getCellCount();
 
@@ -27,13 +27,13 @@ void OpenGLRenderer::draw(Sky const& sky)
     for(int j(0); j < cellCount[1]; ++j){
       for(int k(0); k < cellCount[2]; ++k){
 
-        // On ignore les bords de la boîte et les cubes enterrés dans le relief
+        // Skip the edges of the box and the cells buried in the terrain
         bool const bord(i == 0 or j == 0 or k == 0
                         or i == cellCount[0] - 1 or j == cellCount[1] - 1 or k == cellCount[2] - 1);
         if(bord or sky.isBelowTerrain(i, j, k) or not sky.isCloudy(i, j, k)) continue;
 
-        /* Un amas est fait de deux nappes opposées : la seconde est la
-           première retournée, ce qui referme le nuage sur lui-même. */
+        /* A puff is two opposing sheets: the second is the first
+           flipped, which closes the cloud on itself. */
         QMatrix4x4 modelMatrix;
         modelMatrix.translate(i, j, k + 0.1);
         modelMatrix.scale(0.6);
@@ -49,7 +49,7 @@ void OpenGLRenderer::draw(Sky const& sky)
 // ======================================================================
 void OpenGLRenderer::draw(Mountain const& mountain)
 {
-  program.bind(); // Qt 6 délie le programme entre les frames
+  program.bind(); // Qt 6 unbinds the program between frames
 
   program.setUniformValue("modelView", viewMatrix * QMatrix4x4());
   program.setUniformValue("textureId", 0);
@@ -120,8 +120,8 @@ double OpenGLRenderer::cloudSurface(double i, double j)
 QOpenGLTexture* OpenGLRenderer::loadTexture(QString const& path)
 {
   // Autres variantes au lieu de MirroredRepeat : Repeat, ClampToEdge
-  /* Le retournement vertical reproduit ce que QGLContext::bindTexture
-     faisait implicitement. flipped() remplace mirrored() depuis Qt 6.9. */
+  /* The vertical flip reproduces what QGLContext::bindTexture did
+     implicitly. flipped() replaces mirrored() as of Qt 6.9. */
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
   QImage const image(QImage(path).flipped(Qt::Vertical));
 #else
@@ -151,8 +151,8 @@ void OpenGLRenderer::init()
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
 
-  /* Préparation des textures. QGLContext::bindTexture n'existe plus
-     en Qt 6 : on passe par QOpenGLTexture. */
+  /* QGLContext::bindTexture no longer exists in Qt 6, so the textures
+     go through QOpenGLTexture. */
   cloudTexture = loadTexture(":/clouds.jpeg");
   rockTexture  = loadTexture(":/rock.jpeg");
   grassTexture  = loadTexture(":/grass.jpeg");
@@ -167,17 +167,16 @@ void OpenGLRenderer::initializePosition()
   // position initiale
   viewMatrix.setToIdentity();
   viewMatrix.translate(0.0, 0.0, -4.0);
-  viewMatrix.rotate(-90.0, 1.0, 0.0, 0.0); //on regarde depuis l'axe des x
-  viewMatrix.rotate(45, 0.0, 0.0, 1.0); //Vue de côté
+  viewMatrix.rotate(-90.0, 1.0, 0.0, 0.0); //look along the x axis
+  viewMatrix.rotate(45, 0.0, 0.0, 1.0); //side view
   viewMatrix.translate(10.0, 10.0, -10.0); //Prise de distance
 }
 
 // ======================================================================
 void OpenGLRenderer::translate(double x, double y, double z)
 {
-  /* Multiplie la projection de renderer par LA GAUCHE.
-   * Cela fait en sorte que la dernière modification apportée
-   * à la projection soit appliquée en dernier (composition de fonctions).
+  /* Multiplies the view matrix FROM THE LEFT, so that the most recent
+   * change is applied last, the way function composition works.
    */
   QMatrix4x4 extraTranslation;
   extraTranslation.translate(x, y, z);
@@ -187,7 +186,7 @@ void OpenGLRenderer::translate(double x, double y, double z)
 // ======================================================================
 void OpenGLRenderer::rotate(double angle, double dir_x, double dir_y, double dir_z)
 {
-  // Multiplie la projection de renderer par LA GAUCHE
+  // Multiplies the view matrix FROM THE LEFT
   QMatrix4x4 extraRotation;
   extraRotation.rotate(angle, dir_x, dir_y, dir_z);
   viewMatrix = extraRotation * viewMatrix;

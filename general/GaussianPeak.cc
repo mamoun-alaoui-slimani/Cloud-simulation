@@ -19,6 +19,6 @@ void GaussianPeak::drawOn(Renderer& renderer){
 }
 
 std::ostream& GaussianPeak::print(std::ostream& out) const {
-    out <<"Une montagne Gaussienne de paramètres: " <<std::endl;
+    out <<"A Gaussian peak with parameters: " <<std::endl;
     return Mountain::print(out);
 }

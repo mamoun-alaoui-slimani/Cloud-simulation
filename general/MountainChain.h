@@ -6,8 +6,10 @@
 #include <memory>
 
 /**
- * @brief Représentation d'une Chaine de Montagnes
- * 
+ * @brief A chain of mountains, which is itself a Mountain (Composite).
+ *
+ * Because a chain IS a Mountain and CONTAINS mountains, chains nest
+ * arbitrarily and a nested chain behaves exactly like a single peak.
  */
 class MountainChain : public Mountain{
 private:

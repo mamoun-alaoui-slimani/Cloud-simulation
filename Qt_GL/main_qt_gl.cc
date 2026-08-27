@@ -9,8 +9,8 @@ int main(int argc, char* argv[])
 
   PotentialField potentialField(30, 30, 30, 20.0/29.0);
 
-  /* Une chaîne peut contenir d'autres chaînes : voir les tests, qui
-     vérifient qu'une chaîne imbriquée se comporte comme une mountain. */
+  /* A chain can contain other chains: the tests check that a nested
+     chain behaves exactly like a single mountain. */
   std::vector<std::unique_ptr<Mountain>> chain;
   chain.emplace_back(std::unique_ptr<Mountain>(new GaussianPeak(15.0, 15.0, 15.0, 5.0, 5.0)));
   MountainChain terrain(chain);

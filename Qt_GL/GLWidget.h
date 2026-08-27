@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QOpenGLWidget>        // Classe pour faire une fenêtre OpenGL
-#include <QElapsedTimer>    // Classe pour gérer le temps
+#include <QOpenGLWidget>     // OpenGL window
+#include <QElapsedTimer>     // frame timing
 #include "OpenGLRenderer.h"
 #include "../general/System.h"
 
@@ -18,22 +18,22 @@ private:
   virtual void resizeGL(int width, int height) override;
   virtual void paintGL()                       override;
 
-  // Méthodes de gestion d'évènements
+  // Event handling
   virtual void keyPressEvent(QKeyEvent* event) override;
   virtual void timerEvent(QTimerEvent* event)  override;
 
-  // Méthodes de gestion interne
+  // Internal helpers
   void pause();
 
   // Timer
   int timerId;
 
-  // pour faire évoluer les objets avec le bon "dt"
+  // used to evolve the objects with the right "dt"
   QElapsedTimer stopwatch;
 
-  /* Référence, pas une copie : System contient une MountainChain,
-   * donc un vector<unique_ptr<Mountain>>, qui n'est pas copiable.
-   * Le System de main() vit jusqu'à la fin de a.exec(). */
+  /* A reference, not a copy: System holds a MountainChain, hence a
+   * vector<unique_ptr<Mountain>>, which is not copyable.
+   * The System in main() outlives a.exec(). */
   System& system;
   OpenGLRenderer renderer;
 };

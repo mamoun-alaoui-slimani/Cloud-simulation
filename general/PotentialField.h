@@ -9,7 +9,7 @@
 
 
 /**
- * @brief Représentation d'un Champs de Potentiels
+ * @brief Velocity-potential field over the simulation box.
  * 
  */
 class PotentialField : protected Grid3D<Potential>{
@@ -19,17 +19,17 @@ class PotentialField : protected Grid3D<Potential>{
     
     std::array<double, 3> velocity(int i, int j, int k) const;
     
-    //Résolution
+    //Solving
     void computeLaplacians();
     void solve(double threshold = 1e-4, int maxIterations = 5000, bool print = false);
 
-    //AFFICHAGE
+    //Printing
     void printPotentials() const;
     void printLaplacians() const;
     void printVelocities() const;
     std::ostream& printVelocities(std::ostream& out) const;
 
-    //getters
+    //Getters
     double getCellSize() const;
     std::array<int, 3> getCellCount() const;
     bool isPotentialZero(int i, int j, int k) const;

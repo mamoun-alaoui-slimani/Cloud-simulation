@@ -5,24 +5,24 @@
 #include "PotentialField.h"
 
 /**
- * @brief Construit un nouvel objet ChampsPotentiels. 
- * Appelle le constructeur de Grid3D.
+ * @brief Builds a potential field of the given size.
+ * Delegates the storage to Grid3D.
  * 
- * @param Nx nombres de cubes désirés sur l'axe des x
- * @param Ny nombres de cubes désirés sur l'axe des y
- * @param Nz nombres de cubes désirés sur l'axe des z
- * @param lambda Taille des cubes
+ * @param Nx number of cells along x
+ * @param Ny number of cells along y
+ * @param Nz number of cells along z
+ * @param lambda edge length of a cell
  */
 PotentialField::PotentialField(int Nx, int Ny, int Nz, double lambda)
 :Grid3D<Potential>::Grid3D(Nx, Ny, Nz, lambda) {} 
 
 /**
- * @brief Initialise le champs de potentiels.
- * Les potentiels sont intialisés à (0,0) si sous la mountain.
- * Les laplaciens sont tous initialisés à (0,0).
+ * @brief Initialises the field and its boundary conditions.
+ * Potentials are left at (0,0) below the terrain, which is how those
+ * cells are later recognised and skipped. Laplacians all start at (0,0).
  * 
- * @param v velocity aux bords
- * @param m Mountain à utiliser pour initialiser le champs de potentiels
+ * @param v velocity at the boundary
+ * @param m terrain that shapes the field
  */
 void PotentialField::initialize(double v, const Mountain &m){
     for(int i(0); i < cellCount[0]; ++i){
@@ -32,7 +32,7 @@ void PotentialField::initialize(double v, const Mountain &m){
                     cells[i][j][k] = Potential(Vector2D(-v*(k*cellSize)/2, v*(j*cellSize - (lengths[1]/2))/2), Vector2D());
                 } else {
                     cells[i][j][k] = Potential(); 
-                    //Normalement pas nécessaire puisque notre ChampPotentiel est construit avec les deux vecteurs de Potential initialisés à (0,0) mais pour le moment laisser au cas où on veuille réinitialiser un ChampPotentiel dans lequel les Potentiels ont été modifiés.
+                    //already (0,0) from the default constructor; kept so an
                 }
             }
         }
@@ -40,15 +40,15 @@ void PotentialField::initialize(double v, const Mountain &m){
 }
 
 /**
- * @brief Calcul les Laplaciens pour chaque Potential.
+ * @brief Computes the Laplacian of every interior cell.
  * 
- * Le calcul ne se fait pas si le point est sous la mountain.
+ * Cells below the terrain are skipped.
  */
 void PotentialField::computeLaplacians(){
     for(int i(1); i < cellCount[0] - 1; ++i){
         for(int j(1); j < cellCount[1] - 1; ++j){
             for(int k(1); k < cellCount[2] - 1; ++k){
-                //Pour vérifier si sous la mountain ou non
+                //a zero potential marks a cell below the terrain
                 if(not cells[i][j][k].isZero()){
                 cells[i][j][k].computeLaplacian(cells[i-1][j][k], cells[i][j-1][k], cells[i][j][k-1],
                 cells[i+1][j][k], cells[i][j+1][k], cells[i][j][k+1]);
@@ -59,7 +59,7 @@ void PotentialField::computeLaplacians(){
 }
 
 /**
- * @brief Affiche les potentiels du champs selon le format:
+ * @brief Prints every potential, as: i j k P1 P2
  * i j k P1 P2
  */
 void PotentialField::printPotentials() const {
@@ -75,7 +75,7 @@ void PotentialField::printPotentials() const {
 }
 
 /**
- * @brief Affiche les Laplaciens du champs selon le format:
+ * @brief Prints every Laplacian, as: i j k L2 L3
  *  i j k L2 L3
  */
 void PotentialField::printLaplacians() const {
@@ -90,8 +90,8 @@ void PotentialField::printLaplacians() const {
     }
 }
 /**
- * @brief calcule l'residual nécessaire pour déterminer si convergence.
- * @return double: Somme de la norm au carré de tous les laplaciens.
+ * @brief Residual used to decide whether the solve has converged.
+ * @return the sum of the squared norms of every Laplacian
  */ 
 double PotentialField::residual() const {
     double squaredNorm(0.0);
@@ -106,7 +106,7 @@ double PotentialField::residual() const {
 }
 
 /**
- * @brief Appelle la méthode Potential::iterate() pour tous les points intérieurs de la boîte.
+ * @brief Runs one relaxation step over every interior cell.
  */ 
 void PotentialField::iterate(const double eps){
     for(int i(1); i < cellCount[0] -1; i++){
@@ -119,11 +119,11 @@ void PotentialField::iterate(const double eps){
 }
 
 /**
- * @brief Résoud les équations de Laplace. Tant que l'residual obtenue est plus grande que le threshold ou que le nombre d'itération est plus petit que le nombre max: apppelle la méthode PotentialField::iterate(). Puis recalcule les laplaciens avec les nouvelles valeurs des potentiels.
+ * @brief Solves Laplace's equation by relaxation, until the residual
  * 
- * @param threshold threshold d'residual pour déterminer si convergence ou non
- * @param maxIterations nombre max d'itération pour éviter boucle infini
- * @param print si vrai la méthode print les potentiels et laplaciens à chaque nouvelle itération
+ * @param threshold residual below which the field is considered converged
+ * @param maxIterations cap on the iteration count, to bound the loop
+ * @param print when true, prints the field at every iteration
  */ 
 void PotentialField::solve(double threshold, int maxIterations, bool print){
     int iterationCount(1);
@@ -135,18 +135,18 @@ void PotentialField::solve(double threshold, int maxIterations, bool print){
             this->printPotentials(); //Si verbeuse
             this->printLaplacians();
         }
-        residual = this->residual(); //Actualisation de l'residual avec les nouvelles valeurs des potentiels.
+        residual = this->residual(); //recompute the residual from the updated potentials
         iterationCount++;
     }
 }
 
 /**
- * @brief Pour les indices donnés en paramètre, calcule la velocity du vent associée au point. La velocity au bord n'étant pas définie (sinon segmentation fault), on la met à (0,0,0).
+ * @brief Wind velocity at (i, j, k), from the surrounding potentials.
  * @param i 
  * @param j 
  * @param k
  * 
- * @return Retourne un vecteur 3D où les composantes sont la velocity vx, vy et vz respectivement.
+ * @return the three velocity components vx, vy, vz
  */ 
 std::array<double, 3> PotentialField::velocity(int i, int j, int k) const{
     std::array<double, 3> velocity({0,0,0}); //Array de 3 double nul
@@ -162,9 +162,9 @@ std::array<double, 3> PotentialField::velocity(int i, int j, int k) const{
 }
 
 /**
- * @brief Indique si le potential en (i, j, k) est nul, donc sous le relief.
+ * @brief Whether the potential at (i, j, k) is zero, i.e. below terrain.
  *
- * Les indices hors de la boite sont consideres comme nuls plutot que
+ * Indices outside the box count as zero rather than being indexed.
  * d'indexer hors bornes.
  */
 bool PotentialField::isPotentialZero(int i, int j, int k) const {
@@ -174,7 +174,7 @@ bool PotentialField::isPotentialZero(int i, int j, int k) const {
     return true;
 }
 
-/** @brief Affiche les indices du point, les composantes du vecteur potential, la velocity et sa norm au carré (v2) pour tous les points de notre boîte selon le format suivant:
+/** @brief Prints, for every cell: i j k P1 P2 vx vy vz v2
  * i j k P1 P2 vx vy vz v2 
  */ 
 void PotentialField::printVelocities() const{
@@ -197,10 +197,10 @@ void PotentialField::printVelocities() const{
 }
 
 /**
- * @brief Affiche les vitesses sur un stream de out
+ * @brief Prints every velocity on a stream.
  * 
- * @param out stream de out
- * @return stream de out modifié
+ * @param out output stream
+ * @return the stream
  */
 std::ostream& PotentialField::printVelocities(std::ostream& out) const{
     for(int i(0); i < cellCount[0]; ++i){
@@ -223,26 +223,26 @@ std::ostream& PotentialField::printVelocities(std::ostream& out) const{
 }
 
 /**
- * @brief Surcharge de l'opérateur d'affichage
+ * @brief Stream insertion operator.
  * 
- * @param out stream de out
- * @param field Champs de Potentiels à afficher
- * @return stream de out modifié
+ * @param out output stream
+ * @param field field to print
+ * @return the stream
  */
 std::ostream& operator<<(std::ostream& out, PotentialField const& field){
-    out <<"Le système est constitué d'un champ de Potentiel:  " <<std::endl;
+    out <<"The system holds a potential field: " <<std::endl;
     return field.printVelocities(out);
 }
 
 /**
- * @brief Getter pour l'attribut cellSize
+ * @brief The edge length of a cell.
  */ 
 double PotentialField::getCellSize() const {
     return cellSize;
 }
 
 /**
- * @brief Getter pour l'attribut cellCount
+ * @brief The number of cells along each axis.
  */ 
 std::array<int, 3> PotentialField::getCellCount() const {
     return cellCount;

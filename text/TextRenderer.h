@@ -4,10 +4,10 @@
 #include "Renderer.h"
 
 /**
- * @brief Rendu console du système.
+ * @brief Console renderer.
  *
- * Le stream de out est injecté, ce qui permet d'écrire ailleurs que sur
- * std::cout (un fichier, ou un std::ostringstream dans les tests).
+ * The output stream is injected, so output can go somewhere other than
+ * std::cout: a file, or a std::ostringstream in the tests.
  */
 class TextRenderer : public Renderer {
 public:

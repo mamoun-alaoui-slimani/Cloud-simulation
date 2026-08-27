@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QOpenGLShaderProgram> // Classe qui regroupe les fonctions OpenGL liées aux shaders
+#include <QOpenGLShaderProgram> // Qt wrapper around the GLSL program
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
@@ -9,73 +9,73 @@
 #include "System.h"
 
 /**
- * @brief Rendu 3D temps réel du système, en OpenGL.
+ * @brief Real-time 3D view of the system, in OpenGL.
  *
- * Implémente Renderer : le modèle physique ne connaît pas cette
- * classe, il sait seulement demander à un renderer de le dessiner.
+ * Implements Renderer: the physics model knows nothing about this
+ * class, it only knows how to ask a renderer to draw it.
  */
 class OpenGLRenderer : public Renderer, protected QOpenGLFunctions {
 public:
-  ~OpenGLRenderer() override; //Nécessaire pour libérer la mémoire des textures
+  ~OpenGLRenderer() override; //frees the textures
 
-  // méthodes de dessin héritées de Renderer
+  // drawing methods inherited from Renderer
   void draw(Mountain const& mountain) override;
   void draw(Sky const& sky) override;
 
-  // méthodes de (ré-)initialisation
+  // (re-)initialisation
   void init();
   void initializePosition();
 
   void setProjection(QMatrix4x4 const& projection)
   { program.bind(); program.setUniformValue("projection", projection); }
 
-  // déplacements de la caméra
+  // camera movement
   void translate(double x, double y, double z);
   void rotate(double angle, double dir_x, double dir_y, double dir_z);
 
 private:
-  // Altitudes de transition entre les trois textures du relief
+  // Altitudes at which the terrain texture changes
   static constexpr double GRASS_ALTITUDE = 3.0;
   static constexpr double ROCK_ALTITUDE = 10.0;
 
-  // Étendue et finesse de la nappe dessinée pour un amas nuageux
+  // Extent and resolution of the sheet drawn for one cloud puff
   static constexpr double CLOUD_RADIUS = 2.0;
   static constexpr double CLOUD_STEP   = 0.2;
 
   static QOpenGLTexture* loadTexture(QString const& path);
 
   /**
-   * @brief Hauteur d'un point de la surface d'un amas nuageux.
+   * @brief Height of a point on the surface of a cloud puff.
    *
-   * Forme purement décorative : elle donne au nuage un relief bosselé
-   * plausible. Elle ne provient PAS de la simulation. Seule la position
-   * de l'amas est physique : elle vient des cubes d'air que
-   * Sky::isCloudy() a marqués comme condensés.
+   * Purely decorative: it gives a puff a plausible lumpy surface. It
+   * does NOT come from the simulation. What is physical is only WHERE
+   * a puff appears, which comes from the air cells that
+   * Sky::isCloudy() marks as condensed.
    */
   static double cloudSurface(double i, double j);
 
-  /// Texture du relief selon l'altitude : gazon, roche, puis neige.
+  /// Terrain texture for a given altitude: grass, then rock, then snow.
   QOpenGLTexture* terrainTexture(double altitude) const;
 
-  /// Dessine un quadrilatère texturé de coin (i, j) et d'altitudes données.
+  /// Draws one textured quad with corner (i, j) and the four given altitudes.
   void drawTile(QOpenGLTexture* texture, double i, double j,
                     double z00, double z10, double z11, double z01);
 
-  /// Dessine une nappe nuageuse centrée sur le point de renderer donné.
+  /// Draws one cloud sheet, positioned by the given model matrix.
   void drawCloudPuff(QMatrix4x4 const& modelMatrix);
 
-  // Un shader OpenGL encapsulé dans une classe Qt
+  // The GLSL program, wrapped by Qt
   QOpenGLShaderProgram program;
 
-  // Textures (QOpenGLTexture remplace QGLContext::bindTexture, retiré en Qt 6)
+  // Textures (QOpenGLTexture replaces QGLContext::bindTexture, removed in Qt 6)
   QOpenGLTexture* cloudTexture = nullptr;
   QOpenGLTexture* rockTexture  = nullptr;
   QOpenGLTexture* grassTexture  = nullptr;
   QOpenGLTexture* snowTexture  = nullptr;
 
-  //Les dimensions du dessin
+  // Grid dimensions being drawn
   std::array<int, 3> cellCount = {0, 0, 0};
 
-  // Caméra
+  // Camera
   QMatrix4x4 viewMatrix;
 };

@@ -5,8 +5,8 @@
 using namespace Physics;
 
 /**
- * @brief Permet de donner au AirCell son altitude
- * @param z_ altitude du AirCell 
+ * @brief Sets the altitude of this cell.
+ * @param z_ altitude
  */ 
 
 void AirCell::setZ(double z_){
@@ -14,7 +14,8 @@ void AirCell::setZ(double z_){
 }
 
 /**
- * @brief La méthode initialize permet de d'initialiser tous les attributs privés du AirCell (par défaut tous à 0 quand construit) avec les conditions initiales données dans le complément mathématique.
+ * @brief Sets the cell to its initial physical state.
+ * @param n true when the cell lies below the terrain
  */ 
 void AirCell::initialize(bool n){
     update();
@@ -32,32 +33,32 @@ void AirCell::update(){
 
 
 /**
- * @brief Setter pour la velocity du AirCell
- * @param v std::array<double,3>, obtenue par la méthode PotentialField::velocity(i, j, k) où i,j,k sont les indices du AirCell.
+ * @brief Sets the wind velocity of this cell.
+ * @param v velocity, as returned by PotentialField::velocity(i, j, k)
  */ 
 void AirCell::setVelocity(std::array<double, 3> const& v){
     velocity = v;
 }
 
 /**
- * @brief Determine si le AirCell est une cellule nuageuse ou non
- * @return true (1) si cellule nuageuse, false (0) sinon
+ * @brief Whether water vapour has condensed in this cell.
+ * @return true when the vapour pressure exceeds saturation
  */ 
 bool AirCell::isCloudy() const {
     return (vapourPressure > saturationPressure);
 }
 
 /**
- * @brief Calcule la norm au carré du vecteur de velocity du AirCell.
+ * @brief Squared norm of the velocity vector.
  */ 
 double AirCell::velocitySquaredNorm() const{
     return (velocity[0]*velocity[0] + velocity[1]*velocity[1] + velocity[2]*velocity[2]);
 }
 
 /**
- * @brief Permet l'affichage de toutes les informations relatives à l'instance courante selon le format
- * V2 h T P Peau Prosee Nuage
- */ 
+ * @brief Prints every quantity of this cell, in the order
+ * v2 h T P Pvapour Psaturation cloud
+ */
 void AirCell::printState() const{
     std::cout << velocitySquaredNorm() << " " << enthalpy  << " " << temperature << " " << pressure << " " <<vapourPressure << " " << saturationPressure << " " << isCloudy();
 }

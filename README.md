@@ -142,25 +142,9 @@ target with Qt 6, and a third checks that Doxygen runs clean.
   (`OpenGLRenderer::cloudSurface`), not simulation output. What is physical
   is *where* the puffs appear: the air parcels that `Sky::isCloudy()` marks
   as condensed.
-- The renderer targets desktop OpenGL 2.1 with GLSL 1.20, which is what
-  Apple's Metal-backed driver exposes. Geometry lives in vertex buffers,
-  but the shaders still use the pre-3.0 `attribute`/`varying` syntax.
 - Solving the flow field runs on a worker thread, so the window stays
   responsive; the scene is drawn once the solver finishes.
 
-## Development
-
-Formatting is fixed by `.clang-format`:
-
-```sh
-clang-format -i general/*.cc general/*.h Qt_GL/*.cc Qt_GL/*.h text/*.cc text/*.h tests/*.cc
-```
-
-API documentation is generated from the doxygen comments:
-
-```sh
-doxygen Doxyfile      # writes docs/api/html
-```
 
 ## Licence
 

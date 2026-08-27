@@ -7,34 +7,33 @@
 #include "Potential.h"
 #include "MountainChain.h"
 
-
 /**
  * @brief Velocity-potential field over the simulation box.
- * 
+ *
  */
-class PotentialField : protected Grid3D<Potential>{
-    public:
+class PotentialField : protected Grid3D<Potential> {
+public:
     PotentialField(int Nx, int Ny, int Nz, double lambda);
-    void initialize(double v, const Mountain &m);
-    
+    void initialize(double v, const Mountain& m);
+
     std::array<double, 3> velocity(int i, int j, int k) const;
-    
-    //Solving
+
+    // Solving
     void computeLaplacians();
     void solve(double threshold = 1e-4, int maxIterations = 5000, bool print = false);
 
-    //Printing
+    // Printing
     void printPotentials() const;
     void printLaplacians() const;
     void printVelocities() const;
     std::ostream& printVelocities(std::ostream& out) const;
 
-    //Getters
+    // Getters
     double getCellSize() const;
     std::array<int, 3> getCellCount() const;
     bool isPotentialZero(int i, int j, int k) const;
 
-    private:
+private:
     void iterate(const double eps = 0.1);
     double residual() const;
 };

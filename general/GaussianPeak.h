@@ -1,8 +1,7 @@
 #pragma once
 #include "Mountain.h"
 
-
-class GaussianPeak: public Mountain{
+class GaussianPeak : public Mountain {
 public:
     GaussianPeak(double i0, double j0, double h, double sx, double sy);
     virtual double altitude(double i, double j) const override;

@@ -1,0 +1,19 @@
+# Single formatting convention for the whole project.
+# Run: clang-format -i general/*.cc general/*.h Qt_GL/*.cc Qt_GL/*.h text/*.cc text/*.h tests/*.cc
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+IndentWidth: 4
+ContinuationIndentWidth: 4
+AccessModifierOffset: -4
+ColumnLimit: 100
+
+BreakBeforeBraces: Attach
+PointerAlignment: Left
+ReferenceAlignment: Left
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+SpaceAfterCStyleCast: true
+SortIncludes: false

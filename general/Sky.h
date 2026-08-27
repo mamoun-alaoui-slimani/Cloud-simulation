@@ -8,12 +8,12 @@
 #include "Drawable.h"
 #include "Renderer.h"
 
-class Sky : Grid3D<AirCell>, Drawable {
-    public:
+class Sky : Grid3D<AirCell>, public Drawable {
+public:
     Sky(PotentialField const& cp);
     Sky(double Lx, double Ly, double Lz, double lambda, double velocity);
     Sky();
-    void drawOn(Renderer& renderer);
+    void drawOn(Renderer& renderer) override;
     std::array<int, 3> getCellCount() const { return cellCount; }
     bool isCloudy(int i, int j, int k) const;
     bool isBelowTerrain(int i, int j, int k) const;

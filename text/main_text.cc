@@ -2,20 +2,23 @@
 #include "TextRenderer.h"
 #include "System.h"
 #include "GaussianPeak.h"
-using namespace std;
 
-int main()
-{
-  TextRenderer renderer;
+int main() {
+    TextRenderer renderer;
 
-  PotentialField potentialField(30, 30, 30, 20.0/29.0);
-  std::vector<std::unique_ptr<Mountain>> chain;
-  chain.emplace_back(std::unique_ptr<Mountain>(new GaussianPeak(15.0, 15.0, 15.0, 5.0, 5.0)));
-  MountainChain terrain(chain);
+    PotentialField potentialField(30, 30, 30, 20.0 / 29.0);
+    std::vector<std::unique_ptr<Mountain>> chain;
+    chain.emplace_back(std::unique_ptr<Mountain>(new GaussianPeak(15.0, 15.0, 15.0, 5.0, 5.0)));
+    MountainChain terrain(chain);
 
+    System system(potentialField, terrain);
 
-  System system(potentialField, terrain);
-  system.start(renderer);
+    /* Solve, draw, advance one step, draw again: the renderer is driven
+       from here, not from inside the simulation. */
+    system.solve();
+    system.drawOn(renderer);
+    system.step();
+    system.drawOn(renderer);
 
-  return 0;
+    return 0;
 }

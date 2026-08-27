@@ -32,3 +32,43 @@ jobs:
               -I general -I text \
               general/*.cc text/TextRenderer.cc tests/main_tests.cc -o cloudsim-tests-asan
           ./cloudsim-tests-asan
+
+  qt-build:
+    name: Build the OpenGL front-end (Qt 6)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt 6 and OpenGL headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            qt6-base-dev libqt6opengl6-dev libgl1-mesa-dev
+
+      - name: Build every target with qmake
+        run: |
+          qmake6
+          make -j"$(nproc)"
+
+      - name: Run the unit tests from the qmake build
+        run: ./tests/cloudsim-tests
+
+  docs:
+    name: Doxygen builds without warnings
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends doxygen
+
+      - name: Generate the API documentation
+        run: doxygen Doxyfile
+
+      - name: Upload it as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-docs
+          path: docs/api/html

@@ -11,13 +11,11 @@
  */
 class TextRenderer : public Renderer {
 public:
-  explicit TextRenderer(std::ostream& stream = std::cout)
-    : stream(stream)
-  {}
+    explicit TextRenderer(std::ostream& stream = std::cout) : stream(stream) {}
 
-  void draw(Mountain const& mountain) override;
-  void draw(Sky const& sky) override;
+    void draw(Mountain const& mountain) override;
+    void draw(Sky const& sky) override;
 
 private:
-  std::ostream& stream;
+    std::ostream& stream;
 };

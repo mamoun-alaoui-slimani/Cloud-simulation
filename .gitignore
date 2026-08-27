@@ -15,6 +15,9 @@ Makefile*
 *.app/
 build/
 
+# Documentation generee par Doxygen
+/docs/api/
+
 # Executables produits par la compilation
 /text/cloudsim-text
 /tests/cloudsim-tests

@@ -10,12 +10,12 @@ class Renderer;
  */
 class Drawable {
 public:
-  virtual void drawOn(Renderer& renderer) = 0;
+    virtual void drawOn(Renderer& renderer) = 0;
 
-  Drawable()                           = default;
-  virtual ~Drawable()                  = default;
-  Drawable(Drawable const&)            = default;
-  Drawable& operator=(Drawable const&) = default;
-  Drawable(Drawable&&)                 = default;
-  Drawable& operator=(Drawable&&)      = default;
+    Drawable() = default;
+    virtual ~Drawable() = default;
+    Drawable(Drawable const&) = default;
+    Drawable& operator=(Drawable const&) = default;
+    Drawable(Drawable&&) = default;
+    Drawable& operator=(Drawable&&) = default;
 };

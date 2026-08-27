@@ -16,6 +16,7 @@
 #include "MountainChain.h"
 #include "PotentialField.h"
 #include "AirCell.h"
+#include "Drawable.h"
 #include "GaussianPeak.h"
 #include "Renderer.h"
 #include "TextRenderer.h"
@@ -27,35 +28,32 @@ namespace {
 int total(0);
 int failures(0);
 
-void check(bool condition, std::string const& description, int line)
-{
+void check(bool condition, std::string const& description, int line) {
     ++total;
-    if(not condition){
+    if (not condition) {
         ++failures;
         std::cerr << "  FAILED (line " << line << ") : " << description << std::endl;
     }
 }
 
-void checkNear(double actual, double expected, double tolerance,
-                   std::string const& description, int line)
-{
+void checkNear(double actual, double expected, double tolerance, std::string const& description,
+               int line) {
     ++total;
-    if(std::abs(actual - expected) > tolerance){
+    if (std::abs(actual - expected) > tolerance) {
         ++failures;
-        std::cerr << "  FAILED (line " << line << ") : " << description
-                  << " ; got " << actual << ", expected " << expected << std::endl;
+        std::cerr << "  FAILED (line " << line << ") : " << description << " ; got " << actual
+                  << ", expected " << expected << std::endl;
     }
 }
-}
+} // namespace
 
 #define CHECK(cond) check((cond), #cond, __LINE__)
-#define CHECK_NEAR(actual, expected, tol) \
+#define CHECK_NEAR(actual, expected, tol)                                                          \
     checkNear((actual), (expected), (tol), #actual " ~= " #expected, __LINE__)
 
 // ------------------------------------------------------- relief : GaussianPeak
 
-void testGaussienne()
-{
+void testGaussianPeak() {
     std::cout << "GaussianPeak" << std::endl;
     GaussianPeak peak(15.0, 15.0, 15.0, 5.0, 5.0);
 
@@ -76,8 +74,7 @@ void testGaussienne()
 
 // ------------------------------------------------- terrain: the Composite
 
-void testChaineDeMontagnes()
-{
+void testMountainChain() {
     std::cout << "MountainChain (Composite)" << std::endl;
 
     std::vector<std::unique_ptr<Mountain>> v;
@@ -109,8 +106,7 @@ void testChaineDeMontagnes()
 
 // ------------------------------------------------ thermodynamique : AirCell
 
-void testCubedAir()
-{
+void testAirCell() {
     std::cout << "AirCell (thermodynamics)" << std::endl;
     using namespace Physics;
 
@@ -159,11 +155,10 @@ void testCubedAir()
 
 // ------------------------------------------------------ grille : Grid3D
 
-void testCiel()
-{
+void testSky() {
     std::cout << "Sky (3D grid)" << std::endl;
 
-    Sky sky(20.0, 20.0, 20.0, 20.0/29.0, Physics::V_INFINITY);
+    Sky sky(20.0, 20.0, 20.0, 20.0 / 29.0, Physics::V_INFINITY);
     std::array<int, 3> const n(sky.getCellCount());
 
     CHECK(n[0] == 30);
@@ -174,10 +169,11 @@ void testCiel()
        isCloudy() must be callable everywhere without leaving the grid. */
     sky.update();
     int nuageux(0);
-    for(int i(0); i < n[0]; ++i)
-        for(int j(0); j < n[1]; ++j)
-            for(int k(0); k < n[2]; ++k)
-                if(sky.isCloudy(i, j, k)) ++nuageux;
+    for (int i(0); i < n[0]; ++i)
+        for (int j(0); j < n[1]; ++j)
+            for (int k(0); k < n[2]; ++k)
+                if (sky.isCloudy(i, j, k))
+                    ++nuageux;
 
     // With no terrain the air does not rise, so no condensation.
     CHECK(nuageux == 0);
@@ -185,8 +181,7 @@ void testCiel()
 
 // ------------------------------------------------ potential field: bounds
 
-void testChampPotentiels()
-{
+void testPotentialField() {
     std::cout << "PotentialField (bounds)" << std::endl;
 
     PotentialField field(6, 6, 6, 1.0);
@@ -208,50 +203,211 @@ void testChampPotentiels()
     CHECK(field.isPotentialZero(1000, 1000, 1000));
 
     // A valid index is still queryable as usual.
-    (void)field.isPotentialZero(5, 5, 5);
+    (void) field.isPotentialZero(5, 5, 5);
+}
+
+// --------------------------------------------- solver: the numerical core
+
+void testSolverOnFlatTerrain() {
+    std::cout << "PotentialField (solver, flat terrain)" << std::endl;
+
+    /* A Gaussian of height 0 is a flat plain (altitude() clamps anything
+       below 0.5 to zero). With no obstacle the flow must stay exactly the
+       uniform free stream, which is the analytic solution of Laplace's
+       equation for this geometry. Anything else means the relaxation has
+       drifted away from the boundary conditions. */
+    GaussianPeak flat(0.0, 0.0, 0.0, 1.0, 1.0);
+    CHECK_NEAR(flat.altitude(5.0, 5.0), 0.0, 1e-12);
+
+    PotentialField field(10, 10, 10, 1.0);
+    field.initialize(Physics::V_INFINITY, flat);
+    field.computeLaplacians();
+    field.solve();
+
+    for (int i(1); i < 9; ++i) {
+        for (int j(1); j < 9; ++j) {
+            for (int k(1); k < 9; ++k) {
+                std::array<double, 3> const v(field.velocity(i, j, k));
+                CHECK_NEAR(v[0], Physics::V_INFINITY, 1e-9);
+                CHECK_NEAR(v[1], 0.0, 1e-9);
+                CHECK_NEAR(v[2], 0.0, 1e-9);
+            }
+        }
+    }
+}
+
+void testSolverOverMountain() {
+    std::cout << "PotentialField (solver, over a mountain)" << std::endl;
+
+    GaussianPeak peak(10.0, 10.0, 8.0, 3.0, 3.0);
+    PotentialField field(20, 20, 20, 1.0);
+    field.initialize(Physics::V_INFINITY, peak);
+    field.computeLaplacians();
+    field.solve();
+
+    /* Put an obstacle in the way and the flow must respond: air is lifted
+       somewhere, and it speeds up as it is squeezed over the summit.
+       Without this, the flat-terrain test above would pass on a solver
+       that simply never changed anything. */
+    double maxVertical(0.0);
+    double maxSpeed(0.0);
+    bool finite(true);
+    for (int i(1); i < 19; ++i) {
+        for (int j(1); j < 19; ++j) {
+            for (int k(1); k < 19; ++k) {
+                std::array<double, 3> const v(field.velocity(i, j, k));
+                for (double c : v)
+                    if (std::isnan(c) or std::isinf(c))
+                        finite = false;
+                maxVertical = std::max(maxVertical, std::abs(v[2]));
+                maxSpeed = std::max(maxSpeed, std::abs(v[0]));
+            }
+        }
+    }
+    CHECK(finite);
+    CHECK(maxVertical > 1.0);              // the air really is lifted
+    CHECK(maxSpeed > Physics::V_INFINITY); // and accelerated over the peak
+}
+
+// --------------------------------------------- the whole pipeline, end to end
+
+void testEndToEnd() {
+    std::cout << "End to end (the reference configuration)" << std::endl;
+
+    /* The configuration both front-ends ship with. This pins the whole
+       chain, terrain to field to sky, against known counts, so any change
+       that silently perturbs the physics shows up here. */
+    PotentialField field(30, 30, 30, 20.0 / 29.0);
+    std::vector<std::unique_ptr<Mountain>> chain;
+    chain.emplace_back(std::unique_ptr<Mountain>(new GaussianPeak(15.0, 15.0, 15.0, 5.0, 5.0)));
+    MountainChain terrain(chain);
+
+    field.initialize(Physics::V_INFINITY, terrain);
+    field.computeLaplacians();
+    field.solve();
+
+    Sky sky(field);
+    sky.update();
+
+    std::array<int, 3> const n(sky.getCellCount());
+    int interior(0), cloudy(0), buried(0);
+    for (int i(1); i < n[0] - 1; ++i) {
+        for (int j(1); j < n[1] - 1; ++j) {
+            for (int k(1); k < n[2] - 1; ++k) {
+                ++interior;
+                if (sky.isCloudy(i, j, k))
+                    ++cloudy;
+                if (sky.isBelowTerrain(i, j, k))
+                    ++buried;
+            }
+        }
+    }
+
+    CHECK(interior == 21952);
+    CHECK(cloudy == 361);
+    CHECK(buried == 2002);
+
+    // The sky settles: a further step does not move the cloud count.
+    sky.update();
+    int stable(0);
+    for (int i(1); i < n[0] - 1; ++i)
+        for (int j(1); j < n[1] - 1; ++j)
+            for (int k(1); k < n[2] - 1; ++k)
+                if (sky.isCloudy(i, j, k))
+                    ++stable;
+    CHECK(stable == cloudy);
+}
+
+// ------------------------------------------------ grid: non-cubic dimensions
+
+void testNonCubicGrid() {
+    std::cout << "Grid3D (non-cubic)" << std::endl;
+
+    /* Grid3D nests its vectors so that cells[i][j][k] runs i along x,
+       j along y and k along z. A cubic grid hides any mix-up between the
+       axes, so this uses three different extents on purpose: reading every
+       cell of it would go out of bounds if the nesting were transposed. */
+    Sky sky(4.0, 8.0, 12.0, 1.0, Physics::V_INFINITY);
+    std::array<int, 3> const n(sky.getCellCount());
+
+    CHECK(n[0] == 5);
+    CHECK(n[1] == 9);
+    CHECK(n[2] == 13);
+    CHECK(n[0] != n[1] and n[1] != n[2]);
+
+    sky.update();
+    int visited(0);
+    for (int i(0); i < n[0]; ++i)
+        for (int j(0); j < n[1]; ++j)
+            for (int k(0); k < n[2]; ++k) {
+                (void) sky.isCloudy(i, j, k);
+                (void) sky.isBelowTerrain(i, j, k);
+                ++visited;
+            }
+    CHECK(visited == n[0] * n[1] * n[2]);
 }
 
 // --------------------------------------- rendering: double dispatch (Visitor)
 
 namespace {
 /// A fake renderer that counts the calls it receives.
-class SupportEspion : public Renderer {
+class SpyRenderer : public Renderer {
 public:
-    int montagnes = 0;
-    int ciels = 0;
-    void draw(Mountain const&) override { ++montagnes; }
-    void draw(Sky const&) override { ++ciels; }
+    int mountains = 0;
+    int skies = 0;
+    void draw(Mountain const&) override { ++mountains; }
+    void draw(Sky const&) override { ++skies; }
 };
-}
+} // namespace
 
-void testDoubleDispatch()
-{
+void testDoubleDispatch() {
     std::cout << "Double dispatch (Visitor)" << std::endl;
 
-    SupportEspion espion;
+    SpyRenderer spy;
 
     GaussianPeak peak(1.0, 1.0, 1.0, 1.0, 1.0);
-    peak.drawOn(espion);
-    CHECK(espion.montagnes == 1);
-    CHECK(espion.ciels == 0);
+    peak.drawOn(spy);
+    CHECK(spy.mountains == 1);
+    CHECK(spy.skies == 0);
 
     // A chain presents itself to the renderer as a mountain, not as a special
     // case. That is what lets a new view be added without touching the model.
     std::vector<std::unique_ptr<Mountain>> v;
     v.emplace_back(std::unique_ptr<Mountain>(new GaussianPeak(2.0, 2.0, 2.0, 1.0, 1.0)));
     MountainChain chain(v);
-    chain.drawOn(espion);
-    CHECK(espion.montagnes == 2);
+    chain.drawOn(spy);
+    CHECK(spy.mountains == 2);
 
     Sky sky(5.0, 5.0, 5.0, 1.0, Physics::V_INFINITY);
-    sky.drawOn(espion);
-    CHECK(espion.ciels == 1);
+    sky.drawOn(spy);
+    CHECK(spy.skies == 1);
+}
+
+// ------------------------------------------------ rendering: Drawable is usable
+
+void testDrawablePolymorphism() {
+    std::cout << "Drawable (polymorphism)" << std::endl;
+
+    /* Drawable only earns its place if callers can hold one without
+       knowing the concrete type. Everything drawable therefore derives
+       from it publicly, and drawOn dispatches to the right overload of
+       Renderer through a base pointer. */
+    SpyRenderer spy;
+
+    GaussianPeak peak(3.0, 3.0, 5.0, 2.0, 2.0);
+    Sky sky(4.0, 4.0, 4.0, 1.0, Physics::V_INFINITY);
+
+    std::vector<Drawable*> scene{&peak, &sky};
+    for (Drawable* item : scene)
+        item->drawOn(spy);
+
+    CHECK(spy.mountains == 1);
+    CHECK(spy.skies == 1);
 }
 
 // ------------------------------------------- rendering: injected TextRenderer
 
-void testTextViewer()
-{
+void testTextRenderer() {
     std::cout << "TextRenderer (injected stream)" << std::endl;
 
     std::ostringstream out;
@@ -268,21 +424,23 @@ void testTextViewer()
 
 // -------------------------------------------------------------------- main
 
-int main()
-{
-    testGaussienne();
-    testChaineDeMontagnes();
-    testCubedAir();
-    testCiel();
-    testChampPotentiels();
+int main() {
+    testGaussianPeak();
+    testMountainChain();
+    testAirCell();
+    testSky();
+    testPotentialField();
+    testNonCubicGrid();
+    testSolverOnFlatTerrain();
+    testSolverOverMountain();
+    testEndToEnd();
     testDoubleDispatch();
-    testTextViewer();
+    testDrawablePolymorphism();
+    testTextRenderer();
 
-    std::cout << std::endl
-              << total - failures << " / " << total << " checks passed"
-              << std::endl;
+    std::cout << std::endl << total - failures << " / " << total << " checks passed" << std::endl;
 
-    if(failures > 0){
+    if (failures > 0) {
         std::cout << failures << " FAILURE(S)" << std::endl;
         return 1;
     }

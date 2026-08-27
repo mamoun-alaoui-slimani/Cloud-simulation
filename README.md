@@ -10,6 +10,11 @@ Written for the second-year programming project at EPFL (BA2), in C++17.
 ![The simulation rendered in 3D: a Gaussian peak with grass, rock and snow
 textures, and cloud masses condensing over the summit](docs/screenshot.png)
 
+Orbiting the scene with the arrow keys, captured from the running program:
+
+![A full rotation around the mountain, clouds banked against the windward
+slope and capping the summit](docs/rotation.gif)
+
 ## What it simulates
 
 Wind flowing over a mountain range is forced upward. As the air rises it
@@ -111,30 +116,51 @@ the physics library alone.
     g++ -std=c++17 -I general -I text \
         general/*.cc text/TextRenderer.cc tests/main_tests.cc -o cloudsim-tests
 
-It covers the Gaussian terrain profile, the Composite nesting of mountain
-chains, the thermodynamics of an air parcel against its analytic limiting
-case (at ground level and at the free-stream wind speed, temperature and
-pressure must come back exactly to their values at infinity), the bounds
-handling of the potential field, grid dimensions, the double-dispatch
-rendering path, and the console renderer.
+What it covers, and why each one is there:
+
+| Area | The check |
+|------|-----------|
+| Gaussian profile | Summit height, symmetry, and the cutoff that flattens the plain |
+| Composite | A chain takes the max of its parts, and a chain nested inside a chain behaves as one mountain |
+| Thermodynamics | At ground level and free-stream wind speed, temperature and pressure return **exactly** to their values at infinity |
+| Solver, flat terrain | With no obstacle the solved field is exactly the uniform free stream |
+| Solver, with a mountain | The flow is lifted and accelerated over the summit, so the test above cannot pass on a solver that does nothing |
+| End to end | The shipped configuration yields 21952 interior cells, 361 cloudy, 2002 buried, and is stable across a step |
+| Grid | A deliberately non-cubic grid, which a transposed axis order would read out of bounds |
+| Bounds | Every out-of-range index reports a null potential instead of indexing off the end |
+| Double dispatch | A spy renderer counts the overloads, and `Drawable*` dispatches polymorphically |
+| Console renderer | Output goes to an injected stream |
 
 CI builds the console simulation, runs the suite, then runs it again under
 AddressSanitizer and UndefinedBehaviorSanitizer. Adding `-fsanitize=address,undefined`
-to the command above reproduces that locally.
+to the command above reproduces that locally. A second job builds every
+target with Qt 6, and a third checks that Doxygen runs clean.
 
 ## Notes and known limitations
 
-- The OpenGL renderer uses the legacy fixed-function pipeline
-  (`glBegin`/`GL_QUADS`, GLSL 1.20). It works, including on Apple's
-  Metal-backed OpenGL 2.1, but a modern rewrite around vertex buffers
-  would be the natural next step.
-- `Grid3D` stores its grid as `[Nz][Ny][Nx]` while `Sky` indexes it
-  as `[i][j][k]`. The two agree only because the simulation uses a cubic
-  grid; a non-cubic grid would need this reconciled first.
 - The surface of a cloud puff is a decorative procedural shape
-  (`OpenGLRenderer::cloudSurface`), not simulation output. What is physical is
-  *where* the puffs appear: the air parcels that `Sky::isCloudy()` marks
+  (`OpenGLRenderer::cloudSurface`), not simulation output. What is physical
+  is *where* the puffs appear: the air parcels that `Sky::isCloudy()` marks
   as condensed.
+- The renderer targets desktop OpenGL 2.1 with GLSL 1.20, which is what
+  Apple's Metal-backed driver exposes. Geometry lives in vertex buffers,
+  but the shaders still use the pre-3.0 `attribute`/`varying` syntax.
+- Solving the flow field runs on a worker thread, so the window stays
+  responsive; the scene is drawn once the solver finishes.
+
+## Development
+
+Formatting is fixed by `.clang-format`:
+
+```sh
+clang-format -i general/*.cc general/*.h Qt_GL/*.cc Qt_GL/*.h text/*.cc text/*.h tests/*.cc
+```
+
+API documentation is generated from the doxygen comments:
+
+```sh
+doxygen Doxyfile      # writes docs/api/html
+```
 
 ## Licence
 

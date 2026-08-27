@@ -13,11 +13,11 @@
 /**
  * @brief A mountain, defined only by its altitude at each point.
  */
-class Mountain : Drawable{
-    protected:
+class Mountain : public Drawable {
+protected:
     double i0, j0, height, sigmaX, sigmaY;
 
-    public:
+public:
     virtual double altitude(double i, double j) const = 0;
     Mountain(double i0, double j0, double h, double sx, double sy);
     Mountain() = default;
